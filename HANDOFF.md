@@ -14,15 +14,21 @@ NIE do edycji) leży w `baza/merckop-index-2026-09-20.html`.
 Stack: Firebase (Auth + Firestore) + jeden plik `index.html` (HTML/CSS/JS inline, bez buildu,
 bez frameworka). Hosting docelowo: Netlify, osobny site od MERCKOP.
 
-## Stan na dziś
+## Stan na dziś (2026-09-20)
 
-Frontend + cała logika JS są **gotowe i zweryfikowane wizualnie** w lokalnym podglądzie
-(login, formularz dodawania wpisu, panel admina, dashboard z paskami urlopu — wszystko
-renderuje się poprawnie, zero błędów w konsoli).
+**Aplikacja jest podłączona do prawdziwego Firebase i działa na żywo.** Projekt
+`its-systems-ewidencja` (Auth email/hasło + Firestore, region `eur3`/Europe) jest
+utworzony, `firebaseConfig` w `index.html` ma prawdziwe dane (nie placeholdery),
+`firestore.rules` opublikowane, pierwszy admin (`palengajakub4@gmail.com`) założony
+i przetestowany end-to-end (logowanie, dashboard, kalendarz, panel admina).
 
-**Aplikacja NIE jest jeszcze podłączona do żadnej bazy danych.** W `index.html` w sekcji
-`firebaseConfig` są placeholdery `"TODO_..."` — trzeba je podmienić na dane prawdziwego
-projektu Firebase, zanim cokolwiek zadziała na żywo.
+**Netlify: live.** Osobny projekt `its-systems-ewidencja` (nie mieszany z `merckop-app`),
+połączony z GitHub (`kubapalenga3-afk/its-systems-ewidencja`, branch `main`) — każdy push
+na `main` automatycznie redeployuje. Bez build commandu, publish directory = root repo
+(zwykły statyczny `index.html`, zgodnie z resztą stacku). Adres:
+**https://its-systems-ewidencja.netlify.app**. Domena dodana do Firebase Auth →
+Authorized domains (bez tego logowanie na żywej stronie kończyłoby się
+`auth/unauthorized-domain`).
 
 ## Specyfikacja funkcji (ustalona z klientem)
 
@@ -30,7 +36,9 @@ Role: tylko `employee` i `admin` (bez trzeciej roli jak w MERCKOP).
 
 **Pracownik:**
 - dashboard: wpisywanie godzin + miejsce pracy, urlop, karta z paskami urlopu
-- typy wpisu: Praca, Urlop wypoczynkowy, Urlop na żądanie (osobna pula), Zwolnienie L4, Inne
+- typy wpisu: Praca, Urlop wypoczynkowy, Zwolnienie L4, Inne
+  (był też "Urlop na żądanie" z osobną pulą — **usunięty na życzenie klienta 2026-09-20**,
+  patrz sekcja "Zmiany" niżej)
 - edycja własnych wpisów (godziny, notatka)
 - historia wpisów, rozwijalna notatka w formularzu (żeby nie zaśmiecać UI)
 - kalendarz obecności (kopiowany wzorem z MERCKOP)
@@ -76,19 +84,74 @@ Role: tylko `employee` i `admin` (bez trzeciej roli jak w MERCKOP).
 
 ## Co zostało do zrobienia
 
-1. **Założyć nowy projekt Firebase** (Auth + Firestore) dla IT-S Systems i wkleić prawdziwy
-   `firebaseConfig` w `index.html` (obecnie tam są placeholdery `TODO_...`).
-2. **Wdrożyć `firestore.rules`** w konsoli/CLI Firebase.
-3. **Bootstrap pierwszego admina** — pierwsze logowanie na nowe konto samo utworzy dokument
-   w Firestore z rolą `employee` (fallback w `onAuthStateChanged`); trzeba wtedy ręcznie
-   podbić rolę na `admin` w konsoli Firestore (bo reguły blokują samodzielne ustawienie roli
-   `admin` przy rejestracji — to celowe, patrz wyżej).
-4. **Założyć nowy site na Netlify** (osobny od `merckop-app`) i zrobić pierwszy deploy:
-   `npx netlify-cli deploy --prod --dir <katalog> --site <nowy-siteID> --auth <token>`
-5. Ewentualnie podmienić ikony na prawdziwe logo klienta, jeśli inne niż monogram "ITS".
-6. Docelowo przetestować cały przepływ (logowanie, dodawanie wpisu, edycja, panel admina,
-   eksport CSV/PDF) na żywo z prawdziwym Firebase — do tej pory testowane było tylko
-   wizualnie/statycznie, bez backendu.
+Zrobione 2026-09-20: projekt Firebase, `firebaseConfig`, `firestore.rules`, bootstrap
+pierwszego admina, deploy na Netlify (osobny od `merckop-app`, połączony z GitHub) —
+patrz "Stan na dziś" i "Zmiany" wyżej/niżej.
+
+1. Ewentualnie podmienić ikony na prawdziwe logo klienta, jeśli inne niż monogram "ITS".
+2. Przetestować na żywo dodawanie/edycję wpisu i eksport CSV/PDF — jedyne większe
+   fragmenty, które w tej sesji nie były klikane na żywym Firebase (tworzenie pracownika
+   i zmiana roli na admina **były** przetestowane end-to-end, patrz "Zmiany" niżej).
+
+## Zmiany z 2026-09-20 (sesja na Macu, po sklonowaniu repo)
+
+- **Firebase na żywo**: projekt `its-systems-ewidencja` utworzony w konsoli, web app
+  zarejestrowana, `firebaseConfig` wklejony do `index.html`, Auth email/hasło włączone,
+  Firestore (`eur3`) utworzone, `firestore.rules` opublikowane, pierwszy admin
+  (`palengajakub4@gmail.com`) założony przez Authentication → Add user i podbity na
+  `role:"admin"` ręcznie w Firestore.
+- **Naprawiony bug w `createEmployee`** (dwuczęściowy, oba znalezione i przetestowane
+  end-to-end na żywym Firebase — utworzenie testowego pracownika + podniesienie go na
+  admina przyciskiem "Zmień rolę", potem posprzątane z Authentication/Firestore):
+  1. `createUserWithEmailAndPassword` na głównym `auth` przełączało sesję na nowo
+     tworzonego pracownika i wylogowywało admina (typowa pułapka Firebase SDK) — naprawione
+     osobną instancją `secondaryApp`/`secondaryAuth` (linia ok. 1711), z `signOut(secondaryAuth)`
+     po zapisie dokumentu.
+  2. Sam zapis `setDoc` szedł przez główne `db` — ale to `db` jest uwierzytelnione jako
+     admin, a reguła `create` na `users/{userId}` wymaga `request.auth.uid == userId`
+     (czyli że dokument tworzy sam siebie). Efekt: "Missing or insufficient permissions."
+     mimo poprawki #1. Naprawione dodaniem `secondaryDb = getFirestore(secondaryApp)` i
+     użyciem go w `setDoc(doc(secondaryDb,'users',cred.user.uid), ...)` — zapis idzie
+     wtedy uwierzytelniony jako nowo utworzony user, zgodnie z regułą.
+  Przy okazji usunięta opcja "Administrator" z listy roli przy tworzeniu konta — reguły
+  i tak wymagają `role:'employee'` przy `create`. Podnoszenie do admina tylko przez
+  istniejący przycisk "Zmień rolę" (`changeRole`, `allow update`, działa poprawnie —
+  to pre-istniejący kod, nie było go trzeba zmieniać).
+- **Nowość: podgląd "jako pracownik" dla admina** — ikona oka w topbarze dashboardu
+  (obok wylogowania, `id="view-toggle-btn"`, funkcja `toggleViewMode()`) chowa zakładkę
+  "Zespół" z nawigacji bez zmiany faktycznej roli w Firestore. Stan trzymany lokalnie
+  (`isRealAdmin`, `previewAsEmployee`), resetuje się do widoku admina przy każdym
+  ponownym `onAuthStateChanged` (czyli też po odświeżeniu/ponownym logowaniu).
+- **Usunięty typ wpisu "Urlop na żądanie"** (`ondemand`) na życzenie klienta — całkowicie,
+  ze wszystkich miejsc: przycisk w formularzu dodawania wpisu, pula/pasek na dashboardzie,
+  kafelek w statystykach (dashboard + historia), legenda i kolorowanie kalendarza,
+  pole `poolOnDemand` (domyślne wartości, edycja w panelu admina, zapis `savePools`),
+  eksport CSV/PDF (linie podsumowania), stałe `TYPE_LABELS`/`TYPE_ICONS`/`DAY_TYPES`,
+  zmienne CSS (`--ondemand`, `--ondemand-light` i klasy pochodne). Istniejące konta mają
+  jeszcze pole `poolOnDemand` w Firestore (nieużywane, nieszkodliwe) — można je ręcznie
+  wyczyścić, nie jest to konieczne.
+- **Nowość: subtelny licznik dni roboczych** nad kartą "Twój urlop" na dashboardzie
+  (`#workdays-hint`) — pokazuje `X / Y dni roboczych w tym miesiącu`, gdzie X to liczba
+  osobistych wpisów typu praca/inne w danym miesiącu (ta sama wartość co kafelek
+  "dni roboczych" niżej), a Y to łączna liczba dni Pn–Pt w miesiącu kalendarzowym
+  (funkcja `countWorkingDaysInMonth`, nie uwzględnia świąt).
+- **Naprawiony font na ekranie powitalnym (`#splash`, duży napis "IT-S" po zalogowaniu)**:
+  `'Bebas Neue'` jest ładowana z Google Fonts, ale animacja (`showSplash()`) startowała
+  natychmiast, nie czekając na jej pobranie — na szybkim połączeniu/z cache przeglądarki
+  (typowo telefon właściciela, który już wcześniej otwierał podobną apkę np. MERCKOP)
+  font zdążał się doładować, na wolniejszym/pierwszym połączeniu nie i napis leciał
+  w domyślnym systemowym foncie. Naprawione przez `document.fonts.load(...)` z
+  timeoutem 500ms przed startem animacji (`showSplash`, ok. linii 2685) — to samo
+  ryzyko dotyczy najpewniej referencyjnej kopii MERCKOP, ale ta jest "nie do edycji",
+  więc nie było ruszane.
+- **Deploy na Netlify**: nowy projekt `its-systems-ewidencja` (team MERCKOP, ale osobny
+  projekt/URL od `merckop-app`), połączony z GitHub zamiast CLI/drag-and-drop — logowanie
+  GitHub→Netlify po stronie automatyzacji (klik przez rozszerzenie Chrome) wywalało się
+  na `Failed to fetch` przy `/auth/complete` (najpewniej popup do OAuth blokowany dla
+  syntetycznych kliknięć) — zadziałało dopiero po kliknięciu przez właściciela ręcznie.
+  Bez build commandu, publish directory = root. Live: its-systems-ewidencja.netlify.app.
+  Dodana ta domena do Firebase Auth → Authorized domains (inaczej logowanie na żywej
+  stronie kończyłoby się `auth/unauthorized-domain`).
 
 ## Ważne przy dalszej pracy
 

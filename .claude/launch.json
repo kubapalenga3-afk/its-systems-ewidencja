@@ -9,7 +9,7 @@
         "http.server",
         "5601",
         "--directory",
-        "C:\Users\adas\Desktop\ewidencja-klient"
+        "/Users/e-commerce/ewidencja godzin apka"
       ],
       "port": 5601
     }

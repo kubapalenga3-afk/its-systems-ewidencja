@@ -47,8 +47,6 @@
   --danger-light:  #FFF0EF;
   --vacation:      #5856D6;   /* iOS purple — urlop wypoczynkowy */
   --vacation-light:#F0EFFF;
-  --ondemand:      #0D9488;   /* teal — urlop na żądanie */
-  --ondemand-light:#CCFBF1;
   --sick:          #FF6B6B;   /* L4 */
   --sick-light:    #FFF0F0;
 
@@ -414,6 +412,7 @@ textarea.form-input {
   min-height: 38px;
 }
 .icon-btn:hover { background: var(--accent-muted); }
+.icon-btn.active-preview { background: var(--accent); color: #fff; }
 
 /* ===== BOTTOM NAV ===== */
 .bottom-nav {
@@ -467,6 +466,15 @@ textarea.form-input {
   box-shadow: var(--shadow-sm);
   margin-bottom: 16px;
   border: 0.5px solid rgba(0,0,0,0.04);
+}
+
+.workdays-hint {
+  font-size: 0.78rem;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 4px 14px;
 }
 
 .card-title {
@@ -543,7 +551,6 @@ textarea.form-input {
 .pool-row-label { font-size: 0.85rem; font-weight: 600; color: var(--text-2); }
 .pool-row-bar { height: 8px; border-radius: 4px; background: var(--bg); overflow: hidden; }
 .pool-row-fill { height: 100%; border-radius: 4px; background: var(--vacation); transition: width 0.5s ease; }
-.pool-row-fill.ondemand { background: var(--ondemand); }
 .pool-row-val { font-size: 0.78rem; color: var(--text-3); font-weight: 600; }
 
 /* ===== STATS GRID ===== */
@@ -629,7 +636,6 @@ textarea.form-input {
 
 .entry-icon.work     { background: var(--accent-muted); }
 .entry-icon.vacation { background: var(--vacation-light); }
-.entry-icon.ondemand { background: var(--ondemand-light); }
 .entry-icon.sick     { background: var(--sick-light); }
 .entry-icon.other    { background: var(--bg); }
 
@@ -667,7 +673,6 @@ textarea.form-input {
   letter-spacing: -0.5px;
 }
 .entry-hours.vacation { color: var(--vacation); }
-.entry-hours.ondemand { color: var(--ondemand); }
 .entry-hours.sick     { color: var(--sick); }
 
 /* ===== BADGE ===== */
@@ -680,7 +685,6 @@ textarea.form-input {
 }
 .badge-work     { background: var(--accent-muted);    color: var(--accent-dark); }
 .badge-vacation { background: var(--vacation-light);   color: var(--vacation); }
-.badge-ondemand { background: var(--ondemand-light);   color: var(--ondemand); }
 .badge-sick     { background: var(--sick-light);       color: var(--sick); }
 .badge-other    { background: var(--bg);               color: var(--text-2); }
 
@@ -746,7 +750,6 @@ textarea.form-input {
 
 .type-option.selected             { border-color: var(--accent);   background: var(--accent-muted); }
 .type-option.selected.vacation-opt { border-color: var(--vacation); background: var(--vacation-light); }
-.type-option.selected.ondemand-opt { border-color: var(--ondemand); background: var(--ondemand-light); }
 .type-option.selected.sick-opt    { border-color: var(--sick);     background: var(--sick-light); }
 .type-option.selected.other-opt   { border-color: var(--text-3);  background: var(--bg-secondary); }
 
@@ -936,6 +939,7 @@ textarea.form-input {
   font-size: 0.875rem;
   font-weight: 600;
   opacity: 0;
+  pointer-events: none;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   z-index: 9999;
   white-space: nowrap;
@@ -1071,14 +1075,13 @@ textarea.form-input {
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
 .cal-dow{text-align:center;font-size:.68rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;padding-bottom:6px;}
 .cal-cell{position:relative;aspect-ratio:1;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:600;background:var(--bg);color:var(--text-2);line-height:1;transition:transform .15s;}
-.cal-cell.cal-work:active,.cal-cell.cal-vac:active,.cal-cell.cal-ondemand:active,.cal-cell.cal-sick:active{transform:scale(.92);}
+.cal-cell.cal-work:active,.cal-cell.cal-vac:active,.cal-cell.cal-sick:active{transform:scale(.92);}
 .cal-empty{background:none;}
 .cal-num{font-size:.9rem;}
 .cal-h{font-size:.58rem;font-weight:700;opacity:.9;margin-top:2px;}
 .cal-work{background:#22C55E;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(34,197,94,.32);}
 .cal-miss{background:#EF4444;color:#fff;box-shadow:0 2px 8px rgba(239,68,68,.3);}
 .cal-vac{background:var(--vacation);color:#fff;cursor:pointer;}
-.cal-ondemand{background:var(--ondemand);color:#fff;cursor:pointer;}
 .cal-sick{background:#EC4899;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(236,72,153,.3);}
 .cal-off{background:var(--bg);color:#C7C7CC;}
 .cal-future{background:#fff;color:var(--text-3);border:1.5px dashed var(--separator);}
@@ -1089,7 +1092,6 @@ textarea.form-input {
 .lg-work{background:#22C55E;}
 .lg-miss{background:#EF4444;}
 .lg-vac{background:var(--vacation);}
-.lg-ondemand{background:var(--ondemand);}
 .lg-sick{background:#EC4899;}
 .cal-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
 .cal-sum-item{text-align:center;padding:12px 6px;background:var(--bg);border-radius:var(--r-sm);}
@@ -1211,6 +1213,12 @@ textarea.form-input {
       <div class="topbar-sub" id="topbar-sub">—</div>
     </div>
     <div class="topbar-actions">
+      <button id="view-toggle-btn" class="icon-btn" style="display:none" onclick="toggleViewMode()" title="Podgląd jako pracownik">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+      </button>
       <button class="icon-btn" onclick="doLogout()" title="Wyloguj">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -1227,17 +1235,14 @@ textarea.form-input {
       <div class="greeting-date" id="greeting-date">—</div>
     </div>
 
+    <div class="workdays-hint" id="workdays-hint"></div>
+
     <div class="card" id="leave-card" style="display:none;">
       <div class="card-title" id="leave-card-title">Twój urlop</div>
       <div class="pool-row">
         <div class="pool-row-label">🏖️ Urlop wypoczynkowy</div>
         <div class="pool-row-bar"><div class="pool-row-fill" id="pool-fill-vac"></div></div>
         <div class="pool-row-val" id="pool-val-vac">—</div>
-      </div>
-      <div class="pool-row">
-        <div class="pool-row-label">⚡ Urlop na żądanie</div>
-        <div class="pool-row-bar"><div class="pool-row-fill ondemand" id="pool-fill-ond"></div></div>
-        <div class="pool-row-val" id="pool-val-ond">—</div>
       </div>
       <div class="pool-row">
         <div class="pool-row-label">🤒 Zwolnienia L4</div>
@@ -1260,11 +1265,6 @@ textarea.form-input {
         <div class="stat-icon">🏖️</div>
         <div class="stat-value" id="stat-vacation">0</div>
         <div class="stat-label">dni urlopu</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">⚡</div>
-        <div class="stat-value" id="stat-ondemand">0</div>
-        <div class="stat-label">na żądanie</div>
       </div>
       <div class="stat-card">
         <div class="stat-icon">🤒</div>
@@ -1332,10 +1332,6 @@ textarea.form-input {
         <div class="type-option vacation-opt" id="type-vacation" onclick="selectType('vacation')">
           <span class="type-icon">🏖️</span>
           <span class="type-label">Urlop wypoczynkowy</span>
-        </div>
-        <div class="type-option ondemand-opt" id="type-ondemand" onclick="selectType('ondemand')">
-          <span class="type-icon">⚡</span>
-          <span class="type-label">Urlop na żądanie</span>
         </div>
         <div class="type-option sick-opt" id="type-sick" onclick="selectType('sick')">
           <span class="type-icon">🤒</span>
@@ -1449,10 +1445,6 @@ textarea.form-input {
           <div class="stat-label">urlop</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value" id="h-stat-ondemand">—</div>
-          <div class="stat-label">na żądanie</div>
-        </div>
-        <div class="stat-card">
           <div class="stat-value" id="h-stat-sick">—</div>
           <div class="stat-label">L4</div>
         </div>
@@ -1513,7 +1505,6 @@ textarea.form-input {
         <span><i class="lg lg-work"></i>w pracy</span>
         <span><i class="lg lg-miss"></i>brak wpisu</span>
         <span><i class="lg lg-vac"></i>urlop</span>
-        <span><i class="lg lg-ondemand"></i>na żądanie</span>
         <span><i class="lg lg-sick"></i>L4</span>
       </div>
     </div>
@@ -1608,8 +1599,11 @@ textarea.form-input {
           <label class="form-label">Rola</label>
           <select id="new-user-role" class="form-input">
             <option value="employee">👤 Pracownik</option>
-            <option value="admin">👑 Administrator</option>
           </select>
+          <div style="font-size:0.78rem; color:var(--text-3); margin-top:6px;">
+            Nowe konto zawsze zaczyna jako Pracownik (wymóg reguł bezpieczeństwa) —
+            rolę Administratora nadasz później przyciskiem „Zmień rolę".
+          </div>
         </div>
         <div id="manage-error" class="error-msg"></div>
         <button class="btn btn-primary" onclick="createEmployee()">Utwórz konto</button>
@@ -1683,22 +1677,31 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ─────────────────────────────────────────────────────
-// KONFIGURACJA FIREBASE
-// UWAGA: to jest placeholder — przed pierwszym wdrożeniem
-// podmień na dane z konsoli nowego projektu Firebase (IT-S Systems).
+// KONFIGURACJA FIREBASE — projekt its-systems-ewidencja
 // ─────────────────────────────────────────────────────
 const firebaseConfig = {
-  apiKey:            "TODO_API_KEY",
-  authDomain:        "TODO.firebaseapp.com",
-  projectId:         "TODO",
-  storageBucket:     "TODO.firebasestorage.app",
-  messagingSenderId: "TODO",
-  appId:             "TODO"
+  apiKey:            "AIzaSyCoutrRWYDbiYpnhzySnv-zRtxKe2Np818",
+  authDomain:        "its-systems-ewidencja.firebaseapp.com",
+  projectId:         "its-systems-ewidencja",
+  storageBucket:     "its-systems-ewidencja.firebasestorage.app",
+  messagingSenderId: "512256086436",
+  appId:             "1:512256086436:web:4cc66fb8c23dfd29d1b131"
 };
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
+
+// Osobna instancja Firebase App wyłącznie do tworzenia kont przez admina —
+// createUserWithEmailAndPassword na głównym `auth` przełączyłoby sesję
+// na nowo utworzonego użytkownika i wylogowało admina.
+const secondaryApp  = initializeApp(firebaseConfig, 'Secondary');
+const secondaryAuth = getAuth(secondaryApp);
+// Reguły Firestore pozwalają utworzyć dokument users/{uid} tylko samemu sobie
+// (request.auth.uid == userId) — więc zapis dokumentu nowego pracownika musi iść
+// przez Firestore powiązane z secondaryApp (czyli uwierzytelnione jako ten nowy
+// user), a nie przez główne `db` (uwierzytelnione jako admin).
+const secondaryDb   = getFirestore(secondaryApp);
 
 // ─────────────────────────────────────────────────────
 // STAN APLIKACJI
@@ -1713,10 +1716,12 @@ let currentEntryId  = null;
 let allEntries      = [];
 let editingEntryId  = null;
 let pendingEditEntry = null;
+let isRealAdmin      = false;
+let previewAsEmployee = false;
 
-const TYPE_LABELS = { work:'Praca', vacation:'Urlop wypoczynkowy', ondemand:'Urlop na żądanie', sick:'Zwolnienie L4', other:'Inne' };
-const TYPE_ICONS  = { work:'💼', vacation:'🏖️', ondemand:'⚡', sick:'🤒', other:'📌' };
-const DAY_TYPES = ['vacation','ondemand','sick'];
+const TYPE_LABELS = { work:'Praca', vacation:'Urlop wypoczynkowy', sick:'Zwolnienie L4', other:'Inne' };
+const TYPE_ICONS  = { work:'💼', vacation:'🏖️', sick:'🤒', other:'📌' };
+const DAY_TYPES = ['vacation','sick'];
 
 // ─────────────────────────────────────────────────────
 // HELPERS
@@ -1766,25 +1771,33 @@ function escHtml(v){
 }
 
 function calcStats(entries) {
-  let hours=0,days=0,vacation=0,ondemand=0,sick=0;
+  let hours=0,days=0,vacation=0,sick=0;
   entries.forEach(e=>{
     if(e.type==='work')          { hours+=(Number(e.hours)||0); days++; }
     else if(e.type==='vacation') vacation++;
-    else if(e.type==='ondemand') ondemand++;
     else if(e.type==='sick')     sick++;
     else if(e.type==='other')  { hours+=(Number(e.hours)||0); days++; }
   });
-  return {hours:round1(hours),days,vacation,ondemand,sick};
+  return {hours:round1(hours),days,vacation,sick};
+}
+
+function countWorkingDaysInMonth(year, month) {
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  let count = 0;
+  for(let d=1; d<=daysInMonth; d++){
+    const dow = new Date(year, month, d).getDay();
+    if(dow!==0 && dow!==6) count++;
+  }
+  return count;
 }
 
 function computeLeaveUsage(entries){
-  let usedVacation=0, usedOnDemand=0, usedSick=0;
+  let usedVacation=0, usedSick=0;
   entries.forEach(e=>{
     if(e.type==='vacation') usedVacation++;
-    else if(e.type==='ondemand') usedOnDemand++;
     else if(e.type==='sick') usedSick++;
   });
-  return {usedVacation, usedOnDemand, usedSick};
+  return {usedVacation, usedSick};
 }
 
 function renderEntry(e) {
@@ -1823,8 +1836,30 @@ function renderEntryReadonly(e) {
 // NAWIGACJA
 // ─────────────────────────────────────────────────────
 function applyNavRoles(isAdmin) {
-  document.querySelectorAll('.admin-nav-btn').forEach(b=>b.style.display = isAdmin ? 'flex' : 'none');
+  isRealAdmin = isAdmin;
+  previewAsEmployee = false;
+  const viewToggleBtn = document.getElementById('view-toggle-btn');
+  if(viewToggleBtn) viewToggleBtn.style.display = isAdmin ? 'flex' : 'none';
+  updateAdminNavVisibility();
 }
+
+function updateAdminNavVisibility() {
+  const showAdminNav = isRealAdmin && !previewAsEmployee;
+  document.querySelectorAll('.admin-nav-btn').forEach(b=>b.style.display = showAdminNav ? 'flex' : 'none');
+}
+
+window.toggleViewMode = function() {
+  if(!isRealAdmin) return;
+  previewAsEmployee = !previewAsEmployee;
+  updateAdminNavVisibility();
+  const btn = document.getElementById('view-toggle-btn');
+  btn.classList.toggle('active-preview', previewAsEmployee);
+  btn.title = previewAsEmployee ? 'Wróć do widoku administratora' : 'Podgląd jako pracownik';
+  showToast(previewAsEmployee ? '👤 Podgląd jako pracownik' : '👑 Wróć do panelu administratora');
+  if(previewAsEmployee && document.getElementById('admin-page').classList.contains('active')){
+    showPage('dashboard-page');
+  }
+};
 
 window.showPage = function(pageId) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -1914,7 +1949,7 @@ onAuthStateChanged(auth, async user => {
     if(snap.exists()){
       currentUserData = snap.data();
     } else {
-      currentUserData = {name:user.email.split('@')[0], email:user.email, role:'employee', active:true, poolVacation:26, poolOnDemand:4};
+      currentUserData = {name:user.email.split('@')[0], email:user.email, role:'employee', active:true, poolVacation:26};
       await setDoc(doc(db,'users',user.uid), currentUserData);
     }
     if(currentUserData.active === false){
@@ -1977,18 +2012,17 @@ async function loadDashboard() {
   document.getElementById('stat-hours').textContent    = s.hours;
   document.getElementById('stat-days').textContent     = s.days;
   document.getElementById('stat-vacation').textContent = s.vacation;
-  document.getElementById('stat-ondemand').textContent = s.ondemand;
   document.getElementById('stat-sick').textContent     = s.sick;
+
+  const totalWorkDays = countWorkingDaysInMonth(now.getFullYear(), now.getMonth());
+  document.getElementById('workdays-hint').textContent = `📅 ${s.days} / ${totalWorkDays} dni roboczych w tym miesiącu`;
 
   const lu = computeLeaveUsage(yearEntries);
   const pv = currentUserData?.poolVacation ?? 26;
-  const po = currentUserData?.poolOnDemand ?? 4;
   document.getElementById('leave-card').style.display = 'block';
   document.getElementById('leave-card-title').textContent = 'Twój urlop w '+now.getFullYear();
   document.getElementById('pool-val-vac').textContent = `${lu.usedVacation} / ${pv} dni`;
   document.getElementById('pool-fill-vac').style.width = (pv? Math.min(100, lu.usedVacation/pv*100):0)+'%';
-  document.getElementById('pool-val-ond').textContent = `${lu.usedOnDemand} / ${po} dni`;
-  document.getElementById('pool-fill-ond').style.width = (po? Math.min(100, lu.usedOnDemand/po*100):0)+'%';
   document.getElementById('pool-val-sick').textContent = `${lu.usedSick} dni w tym roku`;
 
   const recent = [...monthEntries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
@@ -2008,7 +2042,6 @@ async function loadHistory() {
   document.getElementById('h-stat-hours').textContent    = s.hours;
   document.getElementById('h-stat-days').textContent     = s.days;
   document.getElementById('h-stat-vacation').textContent = s.vacation;
-  document.getElementById('h-stat-ondemand').textContent = s.ondemand;
   document.getElementById('h-stat-sick').textContent     = s.sick;
   const sorted = [...entries].sort((a,b)=>b.date.localeCompare(a.date));
   document.getElementById('history-entries').innerHTML = sorted.length
@@ -2072,7 +2105,6 @@ async function loadCalendar() {
 
     const work = ents.find(function(e){ return e.type==='work' || e.type==='other'; });
     const vac  = ents.find(function(e){ return e.type==='vacation'; });
-    const ond  = ents.find(function(e){ return e.type==='ondemand'; });
     const sick = ents.find(function(e){ return e.type==='sick'; });
 
     let cls, tip, hLabel='';
@@ -2082,8 +2114,6 @@ async function loadCalendar() {
       cls='cal-work'; tip=round1(h)+'h'; hLabel='<span class="cal-h">'+round1(h)+'</span>';
     } else if(vac){
       cls='cal-vac';  tip='urlop wypoczynkowy';
-    } else if(ond){
-      cls='cal-ondemand'; tip='urlop na żądanie';
     } else if(sick){
       cls='cal-sick'; tip='L4';
     } else if(isOff){
@@ -2142,7 +2172,6 @@ async function loadAdminEmployees() {
     const ye = yearEntries.filter(e=>e.uid===u.uid);
     const lu = computeLeaveUsage(ye);
     const pv = u.poolVacation ?? 26;
-    const po = u.poolOnDemand ?? 4;
     const isActive = u.active !== false;
     const isSelf = u.uid===currentUser.uid;
     return `
@@ -2163,15 +2192,10 @@ async function loadAdminEmployees() {
         <div class="employee-details" id="emp-details-${u.uid}" style="display:none;">
           <div class="divider"></div>
           <div class="pool-grid">
-            <div class="pool-item">
+            <div class="pool-item" style="grid-column: 1 / -1;">
               <label>Urlop wyp. (dni/rok)</label>
               <input type="number" min="0" class="form-input pool-input" id="pool-vac-${u.uid}" value="${pv}">
               <span class="pool-used">wykorzystano: ${lu.usedVacation}</span>
-            </div>
-            <div class="pool-item">
-              <label>Na żądanie (dni/rok)</label>
-              <input type="number" min="0" class="form-input pool-input" id="pool-ond-${u.uid}" value="${po}">
-              <span class="pool-used">wykorzystano: ${lu.usedOnDemand}</span>
             </div>
           </div>
           <div style="margin-top:8px;font-size:.78rem;color:var(--text-3);">🤒 L4 w ${now.getFullYear()}: <strong style="color:var(--text-1)">${lu.usedSick} dni</strong></div>
@@ -2208,9 +2232,8 @@ window.toggleEmpDetails = function(uid){
 
 window.savePools = async function(uid){
   const pv = Number(document.getElementById('pool-vac-'+uid).value)||0;
-  const po = Number(document.getElementById('pool-ond-'+uid).value)||0;
   try{
-    await setDoc(doc(db,'users',uid),{poolVacation:pv, poolOnDemand:po},{merge:true});
+    await setDoc(doc(db,'users',uid),{poolVacation:pv},{merge:true});
     showToast('✅ Limity urlopowe zapisane');
   }catch(err){ showToast('❌ '+err.message); }
 };
@@ -2301,11 +2324,12 @@ window.createEmployee = async function() {
   if(!name||!email||!pass){ showErr('manage-error','Wypełnij wszystkie pola.'); return; }
   if(pass.length<6){ showErr('manage-error','Hasło musi mieć min. 6 znaków.'); return; }
   try {
-    const cred = await createUserWithEmailAndPassword(auth, email, pass);
-    await setDoc(doc(db,'users',cred.user.uid),{
+    const cred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+    await setDoc(doc(secondaryDb,'users',cred.user.uid),{
       name, email, role, createdAt:Timestamp.now(),
-      active:true, poolVacation:26, poolOnDemand:4
+      active:true, poolVacation:26
     });
+    await signOut(secondaryAuth);
     showToast(`✅ Konto "${name}" utworzone!`);
     document.getElementById('new-user-name').value='';
     document.getElementById('new-user-email').value='';
@@ -2339,18 +2363,17 @@ function fileSlug(name){
 
 function buildEmployeeReportData(user, monthDate, entries){
   const sorted = [...entries].sort((a,b)=>a.date.localeCompare(b.date));
-  let sumH=0, dWork=0, dVac=0, dOnd=0, dSick=0;
+  let sumH=0, dWork=0, dVac=0, dSick=0;
   const rows = sorted.map(e=>{
     const dow = new Date(e.date+'T00:00:00').toLocaleDateString('pl-PL',{weekday:'long'});
     const isWork = (e.type==='work' || e.type==='other');
     const h = isWork ? (Number(e.hours)||0) : 0;
     if(isWork){ sumH+=h; dWork++; }
     else if(e.type==='vacation') dVac++;
-    else if(e.type==='ondemand') dOnd++;
     else if(e.type==='sick')     dSick++;
     return [fmtShort(e.date), dow, (TYPE_LABELS[e.type]||e.type), isWork?round1(h):'', (e.place||''), (e.note||'')];
   });
-  return { rows, summary:{dWork,dVac,dOnd,dSick,sumH:round1(sumH)}, user, monthLabel: monthLabel(monthDate) };
+  return { rows, summary:{dWork,dVac,dSick,sumH:round1(sumH)}, user, monthLabel: monthLabel(monthDate) };
 }
 
 function buildEmployeeCsvFromData(d){
@@ -2367,7 +2390,6 @@ function buildEmployeeCsvFromData(d){
   L.push('PODSUMOWANIE');
   L.push('Dni pracy'+S+d.summary.dWork);
   L.push('Dni urlopu wypoczynkowego'+S+d.summary.dVac);
-  L.push('Dni urlopu na zadanie'+S+d.summary.dOnd);
   L.push('Dni L4'+S+d.summary.dSick);
   L.push('Razem godzin'+S+num(d.summary.sumH));
   return L.join('\r\n');
@@ -2411,7 +2433,7 @@ async function buildPdfForEmployees(employeesData, filenameBase){
     doc.setFontSize(10);
     const num = n=>String(n).replace('.',',');
     doc.text(
-      `Dni pracy: ${d.summary.dWork}   Urlop wyp.: ${d.summary.dVac}   Na żądanie: ${d.summary.dOnd}   L4: ${d.summary.dSick}   Razem godzin: ${num(d.summary.sumH)}`,
+      `Dni pracy: ${d.summary.dWork}   Urlop wyp.: ${d.summary.dVac}   L4: ${d.summary.dSick}   Razem godzin: ${num(d.summary.sumH)}`,
       40, endY
     );
   });
@@ -2543,7 +2565,7 @@ window.deleteCurrentEntry = async function() {
 // FORMULARZ DODAWANIA / EDYCJI WPISU
 // ─────────────────────────────────────────────────────
 function updateTypeSections(type){
-  ['work','vacation','ondemand','sick','other'].forEach(t => {
+  ['work','vacation','sick','other'].forEach(t => {
     const el = document.getElementById('type-'+t);
     if(el) el.classList.toggle('selected', t===type);
   });
@@ -2677,7 +2699,14 @@ function showSplash(){
         setTimeout(()=>{ el.style.display='none'; resolve(); }, 850);
       }, 1900);
     };
-    requestAnimationFrame(run);
+    // Na wolniejszych telefonach/sieciach 'Bebas Neue' z Google Fonts nie zdąża się
+    // załadować przed startem animacji i napis "IT-S" leci w domyślnej czcionce —
+    // czekamy na font (max 500ms), zamiast startować animację od razu.
+    const fontReady = (document.fonts && document.fonts.load)
+      ? document.fonts.load("84px 'Bebas Neue'").catch(()=>{})
+      : Promise.resolve();
+    const timeout = new Promise(r=>setTimeout(r, 500));
+    Promise.race([fontReady, timeout]).then(()=>requestAnimationFrame(run));
   });
 }
 </script>
