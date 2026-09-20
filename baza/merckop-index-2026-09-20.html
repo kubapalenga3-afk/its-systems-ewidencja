@@ -1,0 +1,3056 @@
+<!DOCTYPE html>
+<!-- saved from url=(0042)https://merckop-app.netlify.app/index.html -->
+<html lang="pl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#F97316">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="MERCKOP">
+  <title>MERCKOP – Ewidencja czasu pracy</title>
+  <style>
+/* =====================================================
+   MERCKOP – iOS-style · Biel + Pomarańczowy
+   ===================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  /* Paleta pomarańczowa */
+  --orange:        #F97316;
+  --orange-dark:   #EA580C;
+  --orange-deeper: #C2410C;
+  --orange-light:  #FFF7ED;
+  --orange-muted:  #FFEDD5;
+  --orange-border: #FED7AA;
+
+  /* Neutralne */
+  --white:         #FFFFFF;
+  --bg:            #F2F2F7;   /* iOS system background */
+  --bg-secondary:  #E5E5EA;
+  --surface:       #FFFFFF;
+  --text-1:        #1C1C1E;   /* iOS label */
+  --text-2:        #3C3C43;   /* iOS secondary label */
+  --text-3:        #8E8E93;   /* iOS tertiary */
+  --separator:     #C6C6C8;   /* iOS separator */
+
+  /* Status */
+  --success:       #34C759;   /* iOS green */
+  --success-light: #E5F8EB;
+  --warning:       #FF9F0A;
+  --danger:        #FF3B30;   /* iOS red */
+  --danger-light:  #FFF0EF;
+  --vacation:      #5856D6;   /* iOS purple */
+  --vacation-light:#F0EFFF;
+  --sick:          #FF6B6B;
+  --sick-light:    #FFF0F0;
+
+  /* Radii (iOS-style: łagodne) */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+
+  /* Shadows (subtelne jak w iOS) */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+/* ===== BASE ===== */
+html, body {
+  height: 100%;
+  font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text-1);
+  font-size: 16px;
+  line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== LOADER ===== */
+#loader {
+  position: fixed;
+  inset: 0;
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  gap: 24px;
+}
+
+.loader-logo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.loader-icon {
+  width: 80px;
+  height: 80px;
+  background: var(--orange);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(249,115,22,0.35);
+}
+
+.loader-icon svg {
+  width: 44px;
+  height: 44px;
+  color: white;
+}
+
+.loader-logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.5px;
+}
+
+.loader-tagline {
+  font-size: 0.8rem;
+  color: var(--text-3);
+}
+
+.loader-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2.5px solid var(--orange-muted);
+  border-top-color: var(--orange);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== PAGES ===== */
+.page {
+  display: none;
+  min-height: 100vh;
+  padding-bottom: 90px;
+  background: var(--bg);
+}
+.page.active { display: block; }
+
+/* ===== LOGIN PAGE ===== */
+#login-page {
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-bottom: 0;
+}
+#login-page.active { display: flex; }
+
+.login-hero {
+  background: var(--orange);
+  padding: 60px 32px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.login-hero-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.login-hero-icon svg { color: white; }
+
+.login-hero-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.login-hero-sub {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.75);
+  margin-top: 6px;
+}
+
+.login-body {
+  flex: 1;
+  padding: 32px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.login-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 24px;
+}
+
+/* ===== FORM ===== */
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg);
+  border: 1.5px solid transparent;
+  border-radius: var(--r-sm);
+  font-size: 1rem;
+  color: var(--text-1);
+  transition: border-color 0.2s, background 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: inherit;
+}
+
+.form-input::placeholder { color: var(--text-3); }
+
+.form-input:focus {
+  outline: none;
+  background: var(--white);
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(249,115,22,0.12);
+}
+
+select.form-input {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238E8E93' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+
+textarea.form-input {
+  resize: vertical;
+  min-height: 84px;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px 24px;
+  border-radius: var(--r-md);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.18s;
+  text-decoration: none;
+  width: 100%;
+  min-height: 52px;
+  font-family: inherit;
+  letter-spacing: -0.1px;
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--orange);
+  color: white;
+  box-shadow: 0 4px 16px rgba(249,115,22,0.3);
+}
+.btn-primary:hover { background: var(--orange-dark); }
+.btn-primary:active { background: var(--orange-deeper); }
+
+.btn-secondary {
+  background: var(--orange-muted);
+  color: var(--orange-dark);
+}
+.btn-secondary:hover { background: var(--orange-border); }
+
+.btn-danger {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.btn-success {
+  background: var(--success);
+  color: white;
+  box-shadow: 0 4px 12px rgba(52,199,89,0.25);
+}
+
+.btn-outline {
+  background: var(--bg);
+  color: var(--text-2);
+  border: 1.5px solid var(--separator);
+}
+
+.btn-ghost {
+  background: none;
+  color: var(--orange);
+  box-shadow: none;
+}
+
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  min-height: 36px;
+  width: auto;
+  border-radius: var(--r-xs);
+}
+
+/* ===== ERROR MSG ===== */
+.error-msg {
+  background: var(--danger-light);
+  color: var(--danger);
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  font-size: 0.875rem;
+  margin-top: 8px;
+  display: none;
+  font-weight: 500;
+}
+.error-msg.show { display: block; }
+
+/* ===== TOPBAR ===== */
+.topbar {
+  position: sticky;
+  top: 0;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 0.5px solid var(--separator);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 100;
+}
+
+.topbar-left { display: flex; flex-direction: column; gap: 1px; }
+
+.topbar-title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.3px;
+}
+
+.topbar-sub {
+  font-size: 0.75rem;
+  color: var(--text-3);
+}
+
+.topbar-actions { display: flex; gap: 4px; }
+
+.icon-btn {
+  background: var(--bg);
+  border: none;
+  color: var(--orange);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  min-height: 38px;
+}
+.icon-btn:hover { background: var(--orange-muted); }
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255,255,255,0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 0.5px solid var(--separator);
+  display: flex;
+  z-index: 100;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 4px 12px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--text-3);
+  gap: 3px;
+  transition: color 0.2s;
+}
+.nav-item.active { color: var(--orange); }
+.nav-item svg { width: 22px; height: 22px; stroke-width: 1.75; }
+
+.nav-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+}
+
+/* ===== CONTENT ===== */
+.content {
+  padding: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+  border: 0.5px solid rgba(0,0,0,0.04);
+}
+
+.card-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 14px;
+}
+
+/* ===== GREETING CARD ===== */
+.greeting-card {
+  background: var(--orange);
+  border-radius: var(--r-xl);
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 24px rgba(249,115,22,0.28);
+}
+
+.greeting-card::before {
+  content: '';
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 130px;
+  height: 130px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+}
+
+.greeting-card::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  right: 40px;
+  width: 90px;
+  height: 90px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 50%;
+}
+
+.greeting-time {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.75);
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+}
+
+.greeting-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.5px;
+  margin-top: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+.greeting-date {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.7);
+  margin-top: 3px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== STATS GRID ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 0.5px solid rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-icon {
+  font-size: 1.3rem;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+/* ===== SECTION HEADER ===== */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.2px;
+}
+
+/* ===== ENTRY LIST ===== */
+.entry-list { display: flex; flex-direction: column; gap: 8px; }
+
+.entry-item {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  border: 0.5px solid rgba(0,0,0,0.04);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.entry-item:active { transform: scale(0.99); }
+
+.entry-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.entry-icon.work     { background: var(--orange-muted); }
+.entry-icon.vacation { background: var(--vacation-light); }
+.entry-icon.sick     { background: var(--sick-light); }
+.entry-icon.other    { background: var(--bg); }
+
+.entry-info { flex: 1; min-width: 0; }
+
+.entry-date {
+  font-size: 0.75rem;
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+.entry-type {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--text-1);
+  letter-spacing: -0.2px;
+}
+
+.entry-note {
+  font-size: 0.8rem;
+  color: var(--text-3);
+  margin-top: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entry-hours {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--orange);
+  flex-shrink: 0;
+  letter-spacing: -0.5px;
+}
+.entry-hours.vacation { color: var(--vacation); }
+.entry-hours.sick     { color: var(--sick); }
+
+/* ===== BADGE ===== */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.badge-work     { background: var(--orange-muted);    color: var(--orange-dark); }
+.badge-vacation { background: var(--vacation-light);   color: var(--vacation); }
+.badge-sick     { background: var(--sick-light);       color: var(--sick); }
+.badge-other    { background: var(--bg);               color: var(--text-2); }
+
+/* ===== MONTH SELECTOR ===== */
+.month-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 14px;
+  border: 0.5px solid rgba(0,0,0,0.04);
+}
+
+.month-name {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  letter-spacing: -0.2px;
+  color: var(--text-1);
+}
+
+.month-btn {
+  background: var(--bg);
+  border: none;
+  border-radius: var(--r-xs);
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-2);
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.month-btn:hover { background: var(--orange-muted); color: var(--orange); }
+
+/* ===== TYPE SELECTOR (Add form) ===== */
+.entry-type-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.type-option {
+  background: var(--bg);
+  border: 2px solid transparent;
+  border-radius: var(--r-md);
+  padding: 16px 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.type-option:active { transform: scale(0.96); }
+
+.type-option.selected            { border-color: var(--orange);   background: var(--orange-muted); }
+.type-option.selected.vacation-opt { border-color: var(--vacation); background: var(--vacation-light); }
+.type-option.selected.sick-opt   { border-color: var(--sick);     background: var(--sick-light); }
+.type-option.selected.other-opt  { border-color: var(--text-3);  background: var(--bg-secondary); }
+
+.type-icon  { font-size: 1.75rem; }
+.type-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+/* ===== HOURS STEPPER ===== */
+.hours-stepper {
+  display: flex;
+  align-items: center;
+  background: var(--bg);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 1.5px solid var(--separator);
+  width: fit-content;
+  margin-top: 6px;
+}
+
+.stepper-btn {
+  background: none;
+  border: none;
+  padding: 12px 22px;
+  font-size: 1.5rem;
+  font-weight: 300;
+  cursor: pointer;
+  color: var(--orange);
+  transition: background 0.2s;
+  line-height: 1;
+}
+.stepper-btn:hover   { background: var(--orange-muted); }
+.stepper-btn:active  { background: var(--orange-border); }
+
+.stepper-value {
+  padding: 12px 24px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -1px;
+  text-align: center;
+  min-width: 80px;
+  border-left: 1.5px solid var(--separator);
+  border-right: 1.5px solid var(--separator);
+}
+
+.stepper-hint {
+  font-size: 0.75rem;
+  color: var(--text-3);
+  margin-top: 6px;
+}
+
+/* ===== DIVIDER ===== */
+.divider {
+  height: 0.5px;
+  background: var(--separator);
+  margin: 18px 0;
+}
+
+/* ===== ADMIN EMPLOYEE CARD ===== */
+.employee-card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 10px;
+  border: 0.5px solid rgba(0,0,0,0.04);
+}
+
+.employee-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.employee-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--orange-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--orange-dark);
+  flex-shrink: 0;
+}
+
+.employee-name  { font-weight: 700; font-size: 0.9375rem; letter-spacing: -0.2px; }
+.employee-email { font-size: 0.78rem; color: var(--text-3); margin-top: 1px; }
+
+.employee-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.emp-stat {
+  text-align: center;
+  padding: 10px 6px;
+  background: var(--bg);
+  border-radius: var(--r-sm);
+}
+
+.emp-stat-value {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--orange);
+  letter-spacing: -0.5px;
+}
+
+.emp-stat-label { font-size: 0.7rem; color: var(--text-3); margin-top: 2px; }
+
+/* ===== TABS ===== */
+.tabs {
+  display: flex;
+  background: var(--bg-secondary);
+  border-radius: var(--r-sm);
+  padding: 3px;
+  margin-bottom: 14px;
+  gap: 2px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 9px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-3);
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.tab-btn.active {
+  background: var(--white);
+  color: var(--text-1);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-3);
+}
+.empty-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.5; }
+.empty-state p { font-size: 0.9rem; font-weight: 500; }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--text-1);
+  color: white;
+  padding: 12px 22px;
+  border-radius: 24px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 9999;
+  white-space: nowrap;
+  max-width: calc(100vw - 40px);
+  box-shadow: var(--shadow-lg);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ===== MODAL ===== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-backdrop.show { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border-radius: 28px 28px 0 0;
+  padding: 12px 24px 40px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideUp 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--separator);
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+
+.modal-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin-bottom: 20px;
+}
+
+.modal-row {
+  padding: 14px 0;
+  border-bottom: 0.5px solid var(--separator);
+}
+.modal-row:last-child { border-bottom: none; }
+.modal-row-label { font-size: 0.78rem; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.modal-row-value { font-size: 1rem; color: var(--text-1); }
+
+/* ===== SPINNER ===== */
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ===== QUICK ADD BUTTON ===== */
+.quick-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--orange);
+  color: white;
+  border: none;
+  border-radius: var(--r-lg);
+  padding: 16px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 20px;
+  box-shadow: 0 6px 20px rgba(249,115,22,0.3);
+  transition: all 0.18s;
+  font-family: inherit;
+  letter-spacing: -0.2px;
+}
+.quick-add-btn:hover  { background: var(--orange-dark); box-shadow: 0 8px 24px rgba(249,115,22,0.38); }
+.quick-add-btn:active { transform: scale(0.98); }
+
+/* ===== MANAGE USER ROWS ===== */
+.user-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 0;
+  border-bottom: 0.5px solid var(--separator);
+}
+.user-row:last-child { border-bottom: none; }
+
+/* ===== SAFE AREA ===== */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .page {
+    padding-bottom: calc(90px + env(safe-area-inset-bottom));
+  }
+}
+
+
+
+/* ===== MIEJSCE PRACY + EKSPORT ===== */
+.entry-place{font-size:.78rem;color:var(--orange-dark);font-weight:600;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-export{width:100%;margin-top:10px;padding:11px;border:none;border-radius:var(--r-sm);background:var(--orange-muted);color:var(--orange-dark);font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit;transition:background .2s,transform .15s;}
+.btn-export:hover{background:var(--orange-border);}
+.btn-export:active{transform:scale(.98);}
+.btn-export:disabled{opacity:.6;cursor:default;}
+
+/* ===== KALENDARZ OBECNOSCI ===== */
+.cal-card{padding:16px 14px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+.cal-dow{text-align:center;font-size:.68rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;padding-bottom:6px;}
+.cal-cell{position:relative;aspect-ratio:1;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:600;background:var(--bg);color:var(--text-2);line-height:1;transition:transform .15s;}
+.cal-cell.cal-work:active,.cal-cell.cal-vac:active,.cal-cell.cal-sick:active{transform:scale(.92);}
+.cal-empty{background:none;}
+.cal-num{font-size:.9rem;}
+.cal-h{font-size:.58rem;font-weight:700;opacity:.9;margin-top:2px;}
+.cal-work{background:#22C55E;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(34,197,94,.32);}
+.cal-miss{background:#EF4444;color:#fff;box-shadow:0 2px 8px rgba(239,68,68,.3);}
+.cal-vac{background:var(--vacation);color:#fff;cursor:pointer;}
+.cal-sick{background:#EC4899;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(236,72,153,.3);}
+.cal-off{background:var(--bg);color:#C7C7CC;}
+.cal-future{background:#fff;color:var(--text-3);border:1.5px dashed var(--separator);}
+.cal-today{outline:2.5px solid var(--orange);outline-offset:2px;}
+.cal-legend{display:flex;flex-wrap:wrap;gap:9px 14px;margin-top:16px;padding-top:14px;border-top:.5px solid var(--separator);font-size:.75rem;color:var(--text-2);}
+.cal-legend span{display:flex;align-items:center;gap:6px;}
+.lg{width:12px;height:12px;border-radius:4px;display:inline-block;flex:none;}
+.lg-work{background:#22C55E;}
+.lg-miss{background:#EF4444;}
+.lg-vac{background:var(--vacation);}
+.lg-sick{background:#EC4899;}
+.cal-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.cal-sum-item{text-align:center;padding:12px 6px;background:var(--bg);border-radius:var(--r-sm);}
+.cal-sum-item b{display:block;font-size:1.5rem;font-weight:700;letter-spacing:-.5px;line-height:1;color:var(--text-1);}
+.cal-sum-item span{font-size:.7rem;color:var(--text-3);margin-top:3px;display:block;}
+
+/* ===== ANNOUNCEMENT CARD ===== */
+.announcement-card {
+  background: var(--orange);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+  box-shadow: 0 4px 16px rgba(249,115,22,0.28);
+  margin-bottom: 8px;
+}
+.ann-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.ann-icon { font-size: 1.4rem; flex-shrink: 0; }
+.ann-author {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: white;
+}
+.ann-date {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.75);
+  margin-top: 1px;
+}
+.ann-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 6px;
+  letter-spacing: -0.2px;
+}
+.ann-body {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.92);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* ── PASEK POZIOMU (LVL) ── */
+.level-card{margin:0 16px 16px;background:#fff;border-radius:18px;padding:16px 18px;box-shadow:0 2px 14px rgba(15,23,42,.06);position:relative;overflow:hidden;--lvl-color:#22C55E;--lvl-glow:rgba(34,197,94,.5);}
+.level-label{font-size:13px;font-weight:700;color:#1f2937;margin-bottom:10px;}
+.level-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.level-badge{flex:none;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:#fff;background:var(--lvl-color);padding:6px 12px;border-radius:12px;line-height:1;box-shadow:0 4px 12px var(--lvl-glow);transition:background .5s ease,box-shadow .5s ease;}
+.level-meta{flex:1;min-width:0;}
+.level-name{font-size:13px;font-weight:700;color:#1f2937;}
+.level-hours{font-size:12px;color:#6b7280;margin-top:2px;}
+.level-hours span{font-weight:700;color:#1f2937;}
+.level-next{flex:none;font-size:11px;color:#9ca3af;text-align:right;white-space:nowrap;}
+.level-track{position:relative;height:14px;border-radius:8px;background:#eef0f3;overflow:hidden;}
+.level-fill{position:absolute;inset:0 auto 0 0;width:0;border-radius:8px;background:var(--lvl-color);box-shadow:0 0 12px var(--lvl-glow);transition:width .9s cubic-bezier(.2,.8,.2,1),background .5s ease,box-shadow .5s ease;}
+.level-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);transform:translateX(-100%);}
+.level-card.filling .level-fill::after{animation:lvlSheen 1s ease;}
+@keyframes lvlSheen{to{transform:translateX(260%);}}
+.level-tick{position:absolute;top:2px;bottom:2px;width:2px;background:rgba(255,255,255,.75);border-radius:2px;transform:translateX(-1px);}
+.level-workdays{margin-top:10px;font-size:12px;color:#6b7280;}
+.level-workdays span{font-weight:700;color:#1f2937;}
+  </style>
+  <link rel="manifest" href="https://merckop-app.netlify.app/manifest.json">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap">
+<style>#login-page:not(.active){display:none!important;}
+#splash{position:fixed;inset:0;background:radial-gradient(120% 120% at 50% 32%,#FF913F 0%,#F97316 46%,#DC5907 100%);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:10000;overflow:hidden;}
+#splash::before{content:'';position:absolute;width:150vmax;height:150vmax;top:50%;left:50%;transform:translate(-50%,-50%) scale(.6);background:radial-gradient(circle,rgba(255,255,255,.22) 0%,transparent 55%);opacity:0;}
+#splash.play::before{animation:splGlow 2.4s ease-out forwards;}
+@keyframes splGlow{0%{opacity:0;transform:translate(-50%,-50%) scale(.6);}45%{opacity:1;}100%{opacity:.45;transform:translate(-50%,-50%) scale(1);}}
+.splash-inner{position:relative;display:flex;flex-direction:column;align-items:center;}
+.splash-letters{display:flex;gap:1px;}
+.splash-letter,.splash-dash{font-family:'Bebas Neue',sans-serif;font-size:84px;line-height:1;letter-spacing:1px;color:#fff;text-shadow:0 8px 26px rgba(0,0,0,.18);opacity:0;transform:translateY(42px) scale(.78);filter:blur(9px);}
+.splash-dash{color:rgba(255,255,255,.6);}
+#splash.play .splash-letter,#splash.play .splash-dash{animation:splLetter .62s cubic-bezier(.2,.85,.25,1) forwards;animation-delay:calc(var(--i) * .07s);}
+@keyframes splLetter{to{opacity:1;transform:translateY(0) scale(1);filter:blur(0);}}
+.splash-line{width:0;height:2px;margin:20px 0 13px;border-radius:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);}
+#splash.play .splash-line{animation:splLine .75s ease .78s forwards;}
+@keyframes splLine{to{width:210px;}}
+.splash-sub{color:rgba(255,255,255,.92);font-size:12px;font-weight:600;letter-spacing:10px;text-transform:uppercase;padding-left:10px;opacity:0;transform:translateY(10px);}
+#splash.play .splash-sub{animation:splSub .8s cubic-bezier(.2,.85,.25,1) 1.02s forwards;}
+@keyframes splSub{to{opacity:1;transform:translateY(0);letter-spacing:4px;}}
+#splash.fade-out{animation:splFade .85s forwards;}
+@keyframes splFade{to{opacity:0;}}</style>
+</head>
+<body>
+<div id="splash" style="display: none;" class="">
+  <div class="splash-inner">
+    <div class="splash-letters"><span class="splash-letter" style="--i:0">M</span><span class="splash-letter" style="--i:1">E</span><span class="splash-letter" style="--i:2">R</span><span class="splash-letter" style="--i:3">C</span><span class="splash-dash" style="--i:4">-</span><span class="splash-letter" style="--i:5">K</span><span class="splash-letter" style="--i:6">O</span><span class="splash-letter" style="--i:7">P</span></div>
+    <div class="splash-line"></div>
+    <div class="splash-sub">Ewidencja czasu pracy</div>
+  </div>
+</div>
+
+<!-- ====================================================
+     LOADER
+     ==================================================== -->
+<div id="loader" style="display: flex;">
+  <div class="loader-logo-wrap">
+    <div class="loader-icon">
+      <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+        <line x1="8" y1="14" x2="10" y2="14"></line><line x1="8" y1="17" x2="10" y2="17"></line>
+        <line x1="14" y1="14" x2="16" y2="14"></line>
+      </svg>
+    </div>
+    <div class="loader-logo">MERCKOP</div>
+    <div class="loader-tagline">Ewidencja czasu pracy</div>
+  </div>
+  <div class="loader-spinner"></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<!-- ====================================================
+     LOGOWANIE
+     ==================================================== -->
+<div id="login-page" class="page">
+  <div class="login-hero">
+    <div class="login-hero-icon">
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+        <line x1="8" y1="14" x2="10" y2="14"></line><line x1="8" y1="17" x2="10" y2="17"></line>
+        <line x1="14" y1="14" x2="16" y2="14"></line>
+      </svg>
+    </div>
+    <div class="login-hero-title">Witaj<br>w MERCKOP</div>
+    <div class="login-hero-sub">Ewidencja czasu pracy</div>
+  </div>
+
+  <div class="login-body">
+    <div class="login-label">Zaloguj się do swojego konta</div>
+
+    <div class="form-group">
+      <label class="form-label">Adres e-mail</label>
+      <input type="email" id="login-email" class="form-input" placeholder="jan@firma.pl" autocomplete="email" inputmode="email">
+    </div>
+
+    <div class="form-group" style="margin-bottom: 20px;">
+      <label class="form-label">Hasło</label>
+      <input type="password" id="login-password" class="form-input" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <div id="login-error" class="error-msg"></div>
+
+    <button class="btn btn-primary" id="login-btn" onclick="doLogin()">Zaloguj się</button>
+  </div>
+</div>
+
+<!-- ====================================================
+     DASHBOARD
+     ==================================================== -->
+<div id="dashboard-page" class="page">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="topbar-name">Jakub</div>
+      <div class="topbar-sub" id="topbar-sub">14 kwietnia 2026</div>
+    </div>
+    <div class="topbar-brand">MERC-KOP</div>
+    <div class="topbar-actions">
+      <button class="icon-btn" onclick="doLogout()" title="Wyloguj">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="greeting-card">
+      <div class="greeting-time" id="greeting-time">Dzień dobry,</div>
+      <div class="greeting-text" id="greeting-name">Jakub</div>
+      <div class="greeting-date" id="greeting-date">wtorek, 14 kwietnia</div>
+    </div>
+
+    <div id="level-card" class="level-card" style="display:none;">
+      <div class="level-label">Status niewolnictwa w tym miesiącu</div>
+      <div class="level-track">
+        <div class="level-fill" id="level-fill"></div>
+        <span class="level-tick" style="left:25%"></span>
+        <span class="level-tick" style="left:50%"></span>
+        <span class="level-tick" style="left:75%"></span>
+      </div>
+      <div class="level-workdays">Pozostałe dni robocze w tym miesiącu: <span id="level-workdays-val">—</span></div>
+    </div>
+
+    <div id="prezes-emp-list" style="padding: 0px 16px 24px; display: block;"><div style="font-family:&#39;Bebas Neue&#39;,sans-serif;font-size:20px;letter-spacing:2px;color:#1f2937;margin-bottom:12px;padding-top:4px;">ZESPÓŁ — KWIECIEŃ 2026</div><div id="prezes-emp-rows"><div style="text-align:center;padding:32px;color:#9ca3af;font-size:14px;">Ładowanie...</div></div></div><div class="stats-grid" style="display: none;">
+      <div class="stat-card">
+        <div class="stat-icon">⏱</div>
+        <div class="stat-value" id="stat-hours">57.5</div>
+        <div class="stat-label">godzin pracy</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value" id="stat-days">6</div>
+        <div class="stat-label">dni roboczych</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏖️</div>
+        <div class="stat-value" id="stat-vacation">0</div>
+        <div class="stat-label">dni urlopu</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🤒</div>
+        <div class="stat-value" id="stat-sick">0</div>
+        <div class="stat-label">chorobowe</div>
+      </div>
+    </div>
+
+    <button class="quick-add-btn" onclick="showPage(&#39;add-page&#39;)" style="display: none;">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line>
+      </svg>
+      Dodaj wpis
+    </button>
+
+    <div class="section-header" style="display: none;">
+      <div class="section-title">Ostatnie wpisy</div>
+      <button class="btn btn-ghost btn-sm" onclick="showPage(&#39;history-page&#39;)">Wszystkie →</button>
+    </div>
+    <div id="recent-entries" class="entry-list" style="display: none;">
+    <div class="entry-item" onclick="openEntryModal(&#39;gamm5CNT6iLT2iv1DsU7&#39;)">
+      <div class="entry-icon work">💼</div>
+      <div class="entry-info">
+        <div class="entry-date">10.04.2026</div>
+        <div class="entry-type">Praca</div>
+        
+      </div>
+      <div class="entry-hours work">11.5h</div>
+    </div>
+    <div class="entry-item" onclick="openEntryModal(&#39;gJEQ2bgdbdT8MSH75GQx&#39;)">
+      <div class="entry-icon work">💼</div>
+      <div class="entry-info">
+        <div class="entry-date">09.04.2026</div>
+        <div class="entry-type">Praca</div>
+        
+      </div>
+      <div class="entry-hours work">11.5h</div>
+    </div>
+    <div class="entry-item" onclick="openEntryModal(&#39;VxqO8v8WEytV9nODf6DL&#39;)">
+      <div class="entry-icon work">💼</div>
+      <div class="entry-info">
+        <div class="entry-date">08.04.2026</div>
+        <div class="entry-type">Praca</div>
+        
+      </div>
+      <div class="entry-hours work">12h</div>
+    </div>
+    <div class="entry-item" onclick="openEntryModal(&#39;npzKDNudFVj5IOSnPGvc&#39;)">
+      <div class="entry-icon work">💼</div>
+      <div class="entry-info">
+        <div class="entry-date">07.04.2026</div>
+        <div class="entry-type">Praca</div>
+        
+      </div>
+      <div class="entry-hours work">10.5h</div>
+    </div>
+    <div class="entry-item" onclick="openEntryModal(&#39;yVOHhr5xIfJGpSxkIIsF&#39;)">
+      <div class="entry-icon work">💼</div>
+      <div class="entry-info">
+        <div class="entry-date">02.04.2026</div>
+        <div class="entry-type">Praca</div>
+        
+      </div>
+      <div class="entry-hours work">10.5h</div>
+    </div></div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchNav('dashboard-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span class="nav-label">Pulpit</span>
+    </button>
+    <button class="nav-item nav-dodaj-btn" onclick="switchNav('add-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      <span class="nav-label">Dodaj</span>
+    </button>
+    <button class="nav-item nav-ogloszen-btn" style="display:none" onclick="switchNav('announcement-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+      <span class="nav-label">Ogłoszenie</span>
+    </button>
+    <button class="nav-item" onclick="switchNav('history-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle></svg>
+      <span class="nav-label">Historia</span>
+    </button>
+    <button class="nav-item nav-cal-btn" style="display:none" onclick="switchNav('calendar-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      <span class="nav-label">Kalendarz</span>
+    </button>
+    <button class="nav-item nav-feed-btn" style="display:none" onclick="switchNav('feed-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+      <span class="nav-label">Wpisy</span>
+    </button>
+    <button class="nav-item admin-nav-btn" style="display:none" onclick="switchNav('admin-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      <span class="nav-label">Zespół</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ====================================================
+     DODAJ WPIS
+     ==================================================== -->
+<div id="add-page" class="page">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">Nowy wpis</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="card">
+      <div class="card-title">Typ wpisu</div>
+      <div class="entry-type-grid">
+        <div class="type-option selected" id="type-work" onclick="selectType(&#39;work&#39;)">
+          <span class="type-icon">💼</span>
+          <span class="type-label">Praca</span>
+        </div>
+        <div class="type-option vacation-opt" id="type-vacation" onclick="selectType(&#39;vacation&#39;)">
+          <span class="type-icon">🏖️</span>
+          <span class="type-label">Urlop</span>
+        </div>
+        <div class="type-option sick-opt" id="type-sick" onclick="selectType(&#39;sick&#39;)">
+          <span class="type-icon">🤒</span>
+          <span class="type-label">Chorobowe</span>
+        </div>
+        <div class="type-option other-opt" id="type-other" onclick="selectType(&#39;other&#39;)">
+          <span class="type-icon">📌</span>
+          <span class="type-label">Inne</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="form-group">
+        <label class="form-label">Data</label>
+        <input type="date" id="entry-date" class="form-input">
+      </div>
+
+      <div id="hours-section">
+        <div class="divider"></div>
+        <div class="form-label" style="margin-bottom:8px;">Liczba godzin</div>
+        <div class="hours-stepper">
+          <button class="stepper-btn" onclick="changeHours(-0.5)">−</button>
+          <div class="stepper-value" id="hours-display">8</div>
+          <button class="stepper-btn" onclick="changeHours(0.5)">+</button>
+        </div>
+        <div class="stepper-hint">Kliknij + / − aby zmienić o 0,5h</div>
+      </div>
+
+      <div id="place-section">
+        <div class="divider"></div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Miejsce pracy <span style="color:var(--danger);">*</span></label>
+          <input type="text" id="entry-place" class="form-input" maxlength="80" placeholder="Np. Rybnik, ul. Kolejowa 5">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Notatka (opcjonalnie)</label>
+        <textarea id="entry-note" class="form-input" placeholder="Np. praca zdalna, nadgodziny, wizyta u lekarza..."></textarea>
+      </div>
+    </div>
+
+    <div id="add-error" class="error-msg" style="margin-bottom:12px;"></div>
+
+    <button class="btn btn-success" onclick="saveEntry()">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      Zapisz wpis
+    </button>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="switchNav('dashboard-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span class="nav-label">Pulpit</span>
+    </button>
+    <button class="nav-item active nav-dodaj-btn" onclick="switchNav('add-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      <span class="nav-label">Dodaj</span>
+    </button>
+    <button class="nav-item nav-ogloszen-btn" style="display:none" onclick="switchNav('announcement-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+      <span class="nav-label">Ogłoszenie</span>
+    </button>
+    <button class="nav-item" onclick="switchNav('history-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle></svg>
+      <span class="nav-label">Historia</span>
+    </button>
+    <button class="nav-item nav-cal-btn" style="display:none" onclick="switchNav('calendar-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      <span class="nav-label">Kalendarz</span>
+    </button>
+    <button class="nav-item nav-feed-btn" style="display:none" onclick="switchNav('feed-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+      <span class="nav-label">Wpisy</span>
+    </button>
+    <button class="nav-item admin-nav-btn" style="display:none" onclick="switchNav('admin-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      <span class="nav-label">Zespół</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ====================================================
+     HISTORIA
+     ==================================================== -->
+<div id="history-page" class="page">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">Historia</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="month-selector">
+      <button class="month-btn" onclick="changeMonth(-1)">‹</button>
+      <div class="month-name" id="history-month-name">—</div>
+      <button class="month-btn" onclick="changeMonth(1)">›</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Podsumowanie miesiąca</div>
+      <div class="stats-grid" style="margin-bottom:0;">
+        <div class="stat-card">
+          <div class="stat-value" id="h-stat-hours">—</div>
+          <div class="stat-label">godzin pracy</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="h-stat-days">—</div>
+          <div class="stat-label">dni roboczych</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="h-stat-vacation">—</div>
+          <div class="stat-label">urlop</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="h-stat-sick">—</div>
+          <div class="stat-label">chorobowe</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-bottom:10px;">Wpisy</div>
+    <div id="history-entries" class="entry-list">
+      <div class="empty-state"><div class="empty-icon">📅</div><p>Brak wpisów w tym miesiącu.</p></div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="switchNav('dashboard-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span class="nav-label">Pulpit</span>
+    </button>
+    <button class="nav-item nav-dodaj-btn" onclick="switchNav('add-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      <span class="nav-label">Dodaj</span>
+    </button>
+    <button class="nav-item nav-ogloszen-btn" style="display:none" onclick="switchNav('announcement-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+      <span class="nav-label">Ogłoszenie</span>
+    </button>
+    <button class="nav-item active" onclick="switchNav('history-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle></svg>
+      <span class="nav-label">Historia</span>
+    </button>
+    <button class="nav-item nav-cal-btn" style="display:none" onclick="switchNav('calendar-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      <span class="nav-label">Kalendarz</span>
+    </button>
+    <button class="nav-item nav-feed-btn" style="display:none" onclick="switchNav('feed-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+      <span class="nav-label">Wpisy</span>
+    </button>
+    <button class="nav-item admin-nav-btn" style="display:none" onclick="switchNav('admin-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      <span class="nav-label">Zespół</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ====================================================
+     PANEL ADMINISTRATORA
+     ==================================================== -->
+<div id="admin-page" class="page">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">Zespół</div>
+      <div class="topbar-sub" id="admin-topbar-sub">Panel administratora</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchAdminTab(&#39;employees&#39;, this)">Pracownicy</button>
+      <button class="tab-btn" onclick="switchAdminTab(&#39;overview&#39;, this)">Wszystkie wpisy</button>
+      <button class="tab-btn" onclick="switchAdminTab(&#39;entries&#39;, this)">Wpisy</button>
+      <button class="tab-btn" onclick="switchAdminTab(&#39;manage&#39;, this)">Zarządzaj</button>
+    </div>
+
+    <div id="admin-tab-employees">
+      <div class="month-selector">
+        <button class="month-btn" onclick="changeAdminMonth(-1)">‹</button>
+        <div class="month-name" id="admin-month-name">kwiecień 2026</div>
+        <button class="month-btn" onclick="changeAdminMonth(1)">›</button>
+      </div>
+      <div id="admin-employees-list">
+      <div class="employee-card">
+        <div class="employee-header">
+          <div class="employee-avatar">K</div>
+          <div>
+            <div class="employee-name">Krycha</div>
+            <div class="employee-email">krychamerckop@gmail.com </div>
+          </div>
+        </div>
+        <div class="employee-stats">
+          <div class="emp-stat"><div class="emp-stat-value">18</div><div class="emp-stat-label">godzin</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">2</div><div class="emp-stat-label">dni pracy</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">1</div><div class="emp-stat-label">urlop</div></div>
+        </div>
+      <div class="role-select-wrap"><select class="role-select" id="rs-BEG80Q58CXXSkqOqhlxi9nDPlgB2"><option value="employee" selected="">Pracownik</option><option value="admin">Admin</option><option value="prezes">Prezes</option></select><button class="btn-role" onclick="window.changeRole(&#39;BEG80Q58CXXSkqOqhlxi9nDPlgB2&#39;)">Zmień rolę</button></div>
+      <button class="btn-del-emp" onclick="deleteEmployee(&#39;BEG80Q58CXXSkqOqhlxi9nDPlgB2&#39;,&#39;Krycha&#39;)">🗑 Usuń pracownika</button>
+      </div>
+      <div class="employee-card">
+        <div class="employee-header">
+          <div class="employee-avatar">PI</div>
+          <div>
+            <div class="employee-name">Pan i Władca</div>
+            <div class="employee-email">merckopzory@gmail.com </div>
+          </div>
+        </div>
+        <div class="employee-stats">
+          <div class="emp-stat"><div class="emp-stat-value">0</div><div class="emp-stat-label">godzin</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">0</div><div class="emp-stat-label">dni pracy</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">0</div><div class="emp-stat-label">urlop</div></div>
+        </div>
+      <div class="role-select-wrap"><select class="role-select" id="rs-EKWxSO7fxNbWHe6E9Gwyv9DvMzK2"><option value="employee">Pracownik</option><option value="admin">Admin</option><option value="prezes" selected="">Prezes</option></select><button class="btn-role" onclick="window.changeRole(&#39;EKWxSO7fxNbWHe6E9Gwyv9DvMzK2&#39;)">Zmień rolę</button></div>
+      <button class="btn-del-emp" onclick="deleteEmployee(&#39;EKWxSO7fxNbWHe6E9Gwyv9DvMzK2&#39;,&#39;Pan i Władca&#39;)">🗑 Usuń pracownika</button>
+      </div>
+      <div class="employee-card">
+        <div class="employee-header">
+          <div class="employee-avatar">J</div>
+          <div>
+            <div class="employee-name">Jakub</div>
+            <div class="employee-email">palengajakub4@gmail.com · 👑</div>
+          </div>
+        </div>
+        <div class="employee-stats">
+          <div class="emp-stat"><div class="emp-stat-value">57.5</div><div class="emp-stat-label">godzin</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">6</div><div class="emp-stat-label">dni pracy</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">0</div><div class="emp-stat-label">urlop</div></div>
+        </div>
+      <div class="role-select-wrap"><select class="role-select" id="rs-GAtDdMzhGZUm6T4dUlocRw5CRGw2"><option value="employee">Pracownik</option><option value="admin" selected="">Admin</option><option value="prezes">Prezes</option></select><button class="btn-role" onclick="window.changeRole(&#39;GAtDdMzhGZUm6T4dUlocRw5CRGw2&#39;)">Zmień rolę</button></div>
+      
+      </div>
+      <div class="employee-card">
+        <div class="employee-header">
+          <div class="employee-avatar">M</div>
+          <div>
+            <div class="employee-name">Marcin</div>
+            <div class="employee-email">marcinmerckop@gmail.com </div>
+          </div>
+        </div>
+        <div class="employee-stats">
+          <div class="emp-stat"><div class="emp-stat-value">16</div><div class="emp-stat-label">godzin</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">2</div><div class="emp-stat-label">dni pracy</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">0</div><div class="emp-stat-label">urlop</div></div>
+        </div>
+      <div class="role-select-wrap"><select class="role-select" id="rs-U7FO8eZa5EdiyK9XHtFqvjL3Kex1"><option value="employee" selected="">Pracownik</option><option value="admin">Admin</option><option value="prezes">Prezes</option></select><button class="btn-role" onclick="window.changeRole(&#39;U7FO8eZa5EdiyK9XHtFqvjL3Kex1&#39;)">Zmień rolę</button></div>
+      <button class="btn-del-emp" onclick="deleteEmployee(&#39;U7FO8eZa5EdiyK9XHtFqvjL3Kex1&#39;,&#39;Marcin&#39;)">🗑 Usuń pracownika</button>
+      </div>
+      <div class="employee-card">
+        <div class="employee-header">
+          <div class="employee-avatar">J</div>
+          <div>
+            <div class="employee-name">Jarek</div>
+            <div class="employee-email">jarekmerckop@gmail.com </div>
+          </div>
+        </div>
+        <div class="employee-stats">
+          <div class="emp-stat"><div class="emp-stat-value">10</div><div class="emp-stat-label">godzin</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">1</div><div class="emp-stat-label">dni pracy</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">0</div><div class="emp-stat-label">urlop</div></div>
+        </div>
+      <div class="role-select-wrap"><select class="role-select" id="rs-exKjiCi1U0XJdaUGpOEA8NljIDP2"><option value="employee" selected="">Pracownik</option><option value="admin">Admin</option><option value="prezes">Prezes</option></select><button class="btn-role" onclick="window.changeRole(&#39;exKjiCi1U0XJdaUGpOEA8NljIDP2&#39;)">Zmień rolę</button></div>
+      <button class="btn-del-emp" onclick="deleteEmployee(&#39;exKjiCi1U0XJdaUGpOEA8NljIDP2&#39;,&#39;Jarek&#39;)">🗑 Usuń pracownika</button>
+      </div>
+      <div class="employee-card">
+        <div class="employee-header">
+          <div class="employee-avatar">A</div>
+          <div>
+            <div class="employee-name">Artur</div>
+            <div class="employee-email">arturmerckop@gmail.com </div>
+          </div>
+        </div>
+        <div class="employee-stats">
+          <div class="emp-stat"><div class="emp-stat-value">60.5</div><div class="emp-stat-label">godzin</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">6</div><div class="emp-stat-label">dni pracy</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">0</div><div class="emp-stat-label">urlop</div></div>
+        </div>
+      <div class="role-select-wrap"><select class="role-select" id="rs-h6KzC1BEAsQqj8hu5AE20RpUIt33"><option value="employee" selected="">Pracownik</option><option value="admin">Admin</option><option value="prezes">Prezes</option></select><button class="btn-role" onclick="window.changeRole(&#39;h6KzC1BEAsQqj8hu5AE20RpUIt33&#39;)">Zmień rolę</button></div>
+      <button class="btn-del-emp" onclick="deleteEmployee(&#39;h6KzC1BEAsQqj8hu5AE20RpUIt33&#39;,&#39;Artur&#39;)">🗑 Usuń pracownika</button>
+      </div>
+      <div class="employee-card">
+        <div class="employee-header">
+          <div class="employee-avatar">J</div>
+          <div>
+            <div class="employee-name">Jajo</div>
+            <div class="employee-email">jajomerckop@gmail.com </div>
+          </div>
+        </div>
+        <div class="employee-stats">
+          <div class="emp-stat"><div class="emp-stat-value">0</div><div class="emp-stat-label">godzin</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">0</div><div class="emp-stat-label">dni pracy</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">0</div><div class="emp-stat-label">urlop</div></div>
+        </div>
+      <div class="role-select-wrap"><select class="role-select" id="rs-s34B1oVU0LRWef7Ds8FsNclNGgP2"><option value="employee" selected="">Pracownik</option><option value="admin">Admin</option><option value="prezes">Prezes</option></select><button class="btn-role" onclick="window.changeRole(&#39;s34B1oVU0LRWef7Ds8FsNclNGgP2&#39;)">Zmień rolę</button></div>
+      <button class="btn-del-emp" onclick="deleteEmployee(&#39;s34B1oVU0LRWef7Ds8FsNclNGgP2&#39;,&#39;Jajo&#39;)">🗑 Usuń pracownika</button>
+      </div></div>
+    </div>
+
+    <div id="admin-tab-overview" style="display:none;">
+      <div id="admin-all-entries" class="entry-list">
+        <div class="empty-state"><div class="empty-icon">📊</div><p>Wybierz miesiąc w zakładce Pracownicy.</p></div>
+      </div>
+    </div>
+
+    <div id="admin-tab-entries" style="display:none"><div id="admin-all-entries2" class="entry-list"><div class="empty-state"><div class="empty-icon">📋</div><p>Wczytywanie...</p></div></div></div>
+    <div id="admin-tab-manage" style="display:none;">
+      <div class="card">
+        <div class="card-title">Dodaj pracownika</div>
+        <div class="form-group">
+          <label class="form-label">Imię i nazwisko</label>
+          <input type="text" id="new-user-name" class="form-input" placeholder="Jan Kowalski">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Adres e-mail</label>
+          <input type="email" id="new-user-email" class="form-input" placeholder="jan@firma.pl" inputmode="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hasło startowe</label>
+          <input type="text" id="new-user-password" class="form-input" placeholder="Min. 6 znaków" autocomplete="off">
+        </div>
+        <div class="form-group" style="margin-bottom:20px;">
+          <label class="form-label">Rola</label>
+          <select id="new-user-role" class="form-input">
+            <option value="employee">👤 Pracownik</option>
+            <option value="admin">👑 Administrator</option>
+          </select>
+        </div>
+        <div id="manage-error" class="error-msg"></div>
+        <button class="btn btn-primary" onclick="createEmployee()">Utwórz konto</button>
+        <div style="font-size:0.78rem; color:var(--text-3); margin-top:12px; text-align:center; line-height:1.5;">
+          Przekaż pracownikowi e-mail i hasło startowe
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:4px;">
+        <div class="card-title">Istniejące konta</div>
+        <div id="manage-users-list" style="color:var(--text-3); font-size:0.9rem;">Ładowanie...</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="switchNav('dashboard-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span class="nav-label">Pulpit</span>
+    </button>
+    <button class="nav-item nav-dodaj-btn" onclick="switchNav('add-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      <span class="nav-label">Dodaj</span>
+    </button>
+    <button class="nav-item nav-ogloszen-btn" style="display:none" onclick="switchNav('announcement-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+      <span class="nav-label">Ogłoszenie</span>
+    </button>
+    <button class="nav-item" onclick="switchNav('history-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle></svg>
+      <span class="nav-label">Historia</span>
+    </button>
+    <button class="nav-item nav-cal-btn" style="display:none" onclick="switchNav('calendar-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      <span class="nav-label">Kalendarz</span>
+    </button>
+    <button class="nav-item nav-feed-btn" style="display:none" onclick="switchNav('feed-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+      <span class="nav-label">Wpisy</span>
+    </button>
+    <button class="nav-item active admin-nav-btn" style="display:none" onclick="switchNav('admin-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      <span class="nav-label">Zespół</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ====================================================
+     MODAL – Szczegóły wpisu
+     ==================================================== -->
+<div id="entry-modal" class="modal-backdrop" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">Szczegóły wpisu</div>
+    <div id="modal-content"></div>
+    <div style="display:flex; gap:10px; margin-top:24px;">
+      <button class="btn btn-danger btn-sm" onclick="deleteCurrentEntry()">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4h6v2"></path></svg>
+        Usuń
+      </button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">Zamknij</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================
+     FIREBASE + LOGIKA APLIKACJI
+     ==================================================== -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
+  createUserWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, collection, addDoc, query, where, getDocs,
+  deleteDoc, doc, getDoc, setDoc, orderBy, Timestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ─────────────────────────────────────────────────────
+// KONFIGURACJA FIREBASE
+// Zastąp poniższe wartości swoimi danymi z Firebase Console
+// Instrukcja: patrz INSTRUKCJA.md
+// ─────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey:            "AIzaSyCrB5-edtwMTktliLV88K8htRnkUg15uGA",
+  authDomain:        "merckop-app.firebaseapp.com",
+  projectId:         "merckop-app",
+  storageBucket:     "merckop-app.firebasestorage.app",
+  messagingSenderId: "644204504630",
+  appId:             "1:644204504630:web:3fbae750328a1b5ba61a97"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ─────────────────────────────────────────────────────
+// STAN APLIKACJI
+// ─────────────────────────────────────────────────────
+let currentUser     = null;
+let currentUserData = null;
+let selectedType    = 'work';
+let hoursValue      = 8;
+let historyMonth    = new Date();
+let adminMonth      = new Date();
+let currentEntryId  = null;
+let allEntries      = [];
+
+const TYPE_LABELS = { work:'Praca', vacation:'Urlop', sick:'Chorobowe', other:'Inne' };
+const TYPE_ICONS  = { work:'💼', vacation:'🏖️', sick:'🤒', other:'📌' };
+
+// ─────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function showErr(id, msg) { const e = document.getElementById(id); e.textContent=msg; e.classList.add('show'); }
+function hideErr(id)      { document.getElementById(id).classList.remove('show'); }
+
+function todayStr() {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+}
+
+function fmtShort(d) {
+  return new Date(d+'T00:00:00').toLocaleDateString('pl-PL',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+
+function fmtFull(d) {
+  return new Date(d+'T00:00:00').toLocaleDateString('pl-PL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+
+function monthLabel(date) {
+  return date.toLocaleDateString('pl-PL',{month:'long',year:'numeric'});
+}
+
+function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? 'Dzień dobry,' : h < 18 ? 'Dobry wieczór,' : 'Dobranoc,';
+}
+
+function initials(name) {
+  return (name||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+}
+
+function calcStats(entries) {
+  let hours=0,days=0,vacation=0,sick=0;
+  entries.forEach(e=>{
+    if(e.type==='work')     { hours+=e.hours; days++; }
+    else if(e.type==='vacation') vacation++;
+    else if(e.type==='sick')     sick++;
+    else if(e.type==='other')  { hours+=(e.hours||0); days++; }
+  });
+  return {hours,days,vacation,sick};
+}
+
+// ── PASEK POZIOMU (LVL) ──
+const LEVELS = [
+  { color:'#22C55E', glow:'rgba(34,197,94,.5)',  name:'Zielony' },
+  { color:'#EAB308', glow:'rgba(234,179,8,.5)',  name:'Żółty' },
+  { color:'#F97316', glow:'rgba(249,115,22,.5)', name:'Pomarańczowy' },
+  { color:'#EF4444', glow:'rgba(239,68,68,.5)',  name:'Czerwony' },
+];
+const LEVEL_MAX = 200;
+function levelIndex(h){ return h>=LEVEL_MAX ? 3 : Math.max(0, Math.min(3, Math.floor(h/50))); }
+function round1(n){ return Math.round(n*10)/10; }
+
+// ── DNI ROBOCZE (pon–pt minus polskie święta ustawowo wolne) ──
+function easterDate(y){
+  const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,
+    f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,
+    i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),
+    month=Math.floor((h+l-7*m+114)/31),day=((h+l-7*m+114)%31)+1;
+  return new Date(y, month-1, day);
+}
+function plHolidayKeys(y){
+  const dk=d=>d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  const set=new Set([[1,1],[1,6],[5,1],[5,3],[8,15],[11,1],[11,11],[12,25],[12,26]]
+    .map(([mo,da])=>dk(new Date(y,mo-1,da))));
+  const e=easterDate(y);
+  const em=new Date(e); em.setDate(e.getDate()+1);  set.add(dk(em)); // Poniedziałek Wielkanocny
+  const cc=new Date(e); cc.setDate(e.getDate()+60); set.add(dk(cc)); // Boże Ciało
+  return set;
+}
+function workingDaysInMonth(y, m, fromDay=1){ // m: 0-based; liczy dni robocze od fromDay (włącznie)
+  const hol=plHolidayKeys(y);
+  const dim=new Date(y, m+1, 0).getDate();
+  let n=0;
+  for(let d=fromDay; d<=dim; d++){
+    const wd=new Date(y, m, d).getDay();
+    if(wd===0||wd===6) continue;
+    if(hol.has(y+'-'+(m+1)+'-'+d)) continue;
+    n++;
+  }
+  return n;
+}
+
+function renderLevelBar(hours){
+  const card = document.getElementById('level-card');
+  if(!card) return;
+  hours = Number(hours)||0;
+  const cap  = Math.min(hours, LEVEL_MAX);
+  const idx  = levelIndex(hours);
+  const lvl  = LEVELS[idx];
+  const pct  = (cap/LEVEL_MAX)*100;
+
+  // poprzednia wartość zapamiętana per użytkownik + miesiąc → nowy miesiąc startuje od zera
+  const now = new Date();
+  const key = 'mk_lvl_' + (currentUser?.uid||'x') + '_' + now.getFullYear() + '-' + (now.getMonth()+1);
+  let prev = parseFloat(localStorage.getItem(key));
+  if(!isFinite(prev)) prev = 0;
+  const prevIdx  = levelIndex(prev);
+  const prevPct  = (Math.min(prev, LEVEL_MAX)/LEVEL_MAX)*100;
+
+  // kolory poziomu
+  card.style.setProperty('--lvl-color', lvl.color);
+  card.style.setProperty('--lvl-glow',  lvl.glow);
+
+  // animacja nabijania paska od poprzedniej wartości
+  const fill = document.getElementById('level-fill');
+  fill.style.transition = 'none';
+  fill.style.width = prevPct + '%';
+  void fill.offsetWidth;            // wymuś reflow
+  fill.style.transition = '';
+  requestAnimationFrame(()=>{ fill.style.width = pct + '%'; });
+
+  // efekt błysku gdy godziny rosną
+  if(cap > prev){
+    card.classList.remove('filling');
+    void card.offsetWidth;
+    card.classList.add('filling');
+  }
+
+  localStorage.setItem(key, String(hours));
+}
+
+function renderEntry(e) {
+  const cls = e.type||'work';
+  const hrs = (e.type==='vacation'||e.type==='sick') ? '1d' : `${e.hours}h`;
+  return `
+    <div class="entry-item" onclick="openEntryModal('${e.id}')">
+      <div class="entry-icon ${cls}">${TYPE_ICONS[cls]||'📋'}</div>
+      <div class="entry-info">
+        <div class="entry-date">${fmtShort(e.date)}</div>
+        <div class="entry-type">${TYPE_LABELS[cls]||cls}</div>
+        ${e.place?`<div class="entry-place">&#128205; ${escHtml(e.place)}</div>`:''}
+        ${e.note?`<div class="entry-note">${escHtml(e.note)}</div>`:''}
+      </div>
+      <div class="entry-hours ${cls}">${hrs}</div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────────────
+// NAWIGACJA
+// ─────────────────────────────────────────────────────
+
+// -----------------------------------------------------
+// KALENDARZ OBECNOSCI (pracownik)
+// -----------------------------------------------------
+let calMonth = new Date();
+const CAL_DOW = ['Pn','Wt','Sr','Cz','Pt','So','Nd'];
+
+async function loadCalendar() {
+  if(!currentUser) return;
+  const y = calMonth.getFullYear(), m = calMonth.getMonth();
+  document.getElementById('cal-month-name').textContent = monthLabel(calMonth);
+
+  const start = new Date(y, m, 1);
+  const end   = new Date(y, m+1, 0);
+  const entries = await fetchEntries(currentUser.uid, start, end);
+  allEntries = entries;
+
+  const byDate = {};
+  entries.forEach(function(e){ if(!byDate[e.date]) byDate[e.date]=[]; byDate[e.date].push(e); });
+
+  const hol   = plHolidayKeys(y);
+  const dim   = end.getDate();
+  const today = todayStr();
+  const firstWd = (new Date(y, m, 1).getDay() + 6) % 7;
+
+  let cells = '';
+  for(let i=0; i<firstWd; i++) cells += '<div class="cal-cell cal-empty"></div>';
+
+  let cWork=0, cMiss=0, hours=0;
+
+  for(let d=1; d<=dim; d++){
+    const ds = y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const wd = new Date(y, m, d).getDay();
+    const isOff = wd===0 || wd===6 || hol.has(y+'-'+(m+1)+'-'+d);
+    const ents = byDate[ds] || [];
+
+    const work = ents.find(function(e){ return e.type==='work' || e.type==='other'; });
+    const vac  = ents.find(function(e){ return e.type==='vacation'; });
+    const sick = ents.find(function(e){ return e.type==='sick'; });
+
+    let cls, tip, hLabel='';
+    if(work){
+      const h = ents.reduce(function(s,e){ return s + (Number(e.hours)||0); }, 0);
+      hours += h; cWork++;
+      cls='cal-work'; tip=round1(h)+'h'; hLabel='<span class="cal-h">'+round1(h)+'</span>';
+    } else if(vac){
+      cls='cal-vac';  tip='urlop';
+    } else if(sick){
+      cls='cal-sick'; tip='chorobowe';
+    } else if(isOff){
+      cls='cal-off';  tip='dzien wolny';
+    } else if(ds > today){
+      cls='cal-future'; tip='';
+    } else {
+      cls='cal-miss'; tip='brak wpisu'; cMiss++;
+    }
+
+    const todayCls = (ds===today) ? ' cal-today' : '';
+    const click = ents.length ? ' onclick="openEntryModal(\'' + ents[0].id + '\')"' : '';
+    cells += '<div class="cal-cell '+cls+todayCls+'"'+click+' title="'+tip+'">'
+           + '<span class="cal-num">'+d+'</span>'+hLabel+'</div>';
+  }
+
+  document.getElementById('cal-grid').innerHTML =
+    CAL_DOW.map(function(x){ return '<div class="cal-dow">'+x+'</div>'; }).join('') + cells;
+
+  document.getElementById('cal-sum').innerHTML =
+      '<div class="cal-sum-item"><b style="color:#16A34A">'+cWork+'</b><span>dni w pracy</span></div>'
+    + '<div class="cal-sum-item"><b style="color:'+(cMiss?'#DC2626':'var(--text-1)')+'">'+cMiss+'</b><span>brakow</span></div>'
+    + '<div class="cal-sum-item"><b>'+round1(hours)+'</b><span>godzin</span></div>';
+
+  // ogloszenia prezesa pod kalendarzem
+  try {
+    const anns = await fetchAnnouncements(start, end);
+    const wrap = document.getElementById('cal-ann-wrap');
+    if(!anns.length){ wrap.style.display='none'; return; }
+    let umap = {};
+    try {
+      const us = await getDocs(collection(db,'users'));
+      us.forEach(function(x){ umap[x.id] = x.data(); });
+    } catch(e){}
+    wrap.style.display='block';
+    document.getElementById('cal-ann').innerHTML = anns
+      .sort(function(a,b){ return b.date.localeCompare(a.date); })
+      .map(function(e){
+        const u = umap[e.uid] || {};
+        return '<div class="announcement-card"><div class="ann-header"><span class="ann-icon">&#128226;</span>'
+             + '<div><div class="ann-author">'+(u.name||'Prezes')+'</div>'
+             + '<div class="ann-date">'+fmtShort(e.date)+'</div></div></div>'
+             + (e.title ? '<div class="ann-title">'+e.title+'</div>' : '')
+             + '<div class="ann-body">'+(e.note||'')+'</div></div>';
+      }).join('');
+  } catch(err){ console.error('kalendarz/ogloszenia:', err); }
+}
+
+window.changeCalMonth = function(d){
+  calMonth.setMonth(calMonth.getMonth()+d);
+  loadCalendar();
+};
+
+
+// -----------------------------------------------------
+// EKSPORT CSV (per pracownik) + helper
+// -----------------------------------------------------
+function escHtml(v){
+  return String(v==null?'':v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function csvCell(v){
+  v = (v==null ? '' : String(v));
+  return /[";\r\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v;
+}
+
+function fileSlug(name){
+  const map = {'ą':'a','ć':'c','ę':'e','ł':'l','ń':'n','ó':'o','ś':'s','ź':'z','ż':'z',
+               'Ą':'A','Ć':'C','Ę':'E','Ł':'L','Ń':'N','Ó':'O','Ś':'S','Ź':'Z','Ż':'Z'};
+  return String(name||'pracownik')
+    .replace(/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g, function(c){ return map[c]||c; })
+    .replace(/[^A-Za-z0-9]+/g,'_').replace(/^_+|_+$/g,'') || 'pracownik';
+}
+
+function buildEmployeeCsv(user, monthDate, entries){
+  const S = ';';
+  const sorted = [...entries].sort(function(a,b){ return a.date.localeCompare(b.date); });
+  const num = n => String(round1(n)).replace('.', ',');   // Excel PL
+  const L = [];
+  L.push('MERCKOP - ewidencja czasu pracy');
+  L.push('Pracownik'+S+csvCell(user.name||''));
+  L.push('E-mail'+S+csvCell(user.email||''));
+  L.push('Miesiac'+S+csvCell(monthLabel(monthDate)));
+  L.push('');
+  L.push(['Data','Dzien tygodnia','Typ','Godziny','Miejsce pracy','Notatka'].join(S));
+
+  let sumH=0, dWork=0, dVac=0, dSick=0;
+  sorted.forEach(function(e){
+    const dow = new Date(e.date+'T00:00:00').toLocaleDateString('pl-PL',{weekday:'long'});
+    const isWork = (e.type==='work' || e.type==='other');
+    const h = isWork ? (Number(e.hours)||0) : 0;
+    if(isWork){ sumH += h; dWork++; }
+    else if(e.type==='vacation') dVac++;
+    else if(e.type==='sick')     dSick++;
+    L.push([ fmtShort(e.date), dow, (TYPE_LABELS[e.type]||e.type),
+             isWork ? num(h) : '', (e.place||''), (e.note||'') ].map(csvCell).join(S));
+  });
+
+  L.push('');
+  L.push('PODSUMOWANIE');
+  L.push('Dni pracy'+S+dWork);
+  L.push('Dni urlopu'+S+dVac);
+  L.push('Dni chorobowego'+S+dSick);
+  L.push('Razem godzin'+S+num(sumH));
+  return L.join('\r\n');
+}
+
+function downloadFile(filename, text){
+  const blob = new Blob(['\ufeff'+text], {type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = filename; a.style.display='none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){
+    if(a.parentNode) a.parentNode.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 2000);
+}
+
+window.exportEmployee = async function(uid){
+  const btn = document.getElementById('exp-'+uid);
+  const old = btn ? btn.innerHTML : '';
+  if(btn){ btn.disabled=true; btn.textContent='Przygotowuję...'; }
+  try {
+    const start = new Date(adminMonth.getFullYear(), adminMonth.getMonth(), 1);
+    const end   = new Date(adminMonth.getFullYear(), adminMonth.getMonth()+1, 0);
+    const [uSnap, entries] = await Promise.all([
+      getDoc(doc(db,'users',uid)),
+      fetchEntries(uid, start, end)
+    ]);
+    const user = uSnap.exists() ? uSnap.data() : {name:'Pracownik', email:''};
+    if(!entries.length){ showToast('Brak wpisów w tym miesiącu'); return; }
+    const csv = buildEmployeeCsv(user, adminMonth, entries);
+    const ym  = adminMonth.getFullYear()+'-'+String(adminMonth.getMonth()+1).padStart(2,'0');
+    downloadFile('MERCKOP_'+fileSlug(user.name)+'_'+ym+'.csv', csv);
+    showToast('Pobrano plik CSV');
+  } catch(err){
+    console.error('eksport:', err);
+    showToast('Błąd eksportu: '+err.message);
+  } finally {
+    if(btn){ btn.disabled=false; btn.innerHTML=old; }
+  }
+};
+
+function applyNavRoles(isAdmin, isPrezes) {
+  const isEmp = !isAdmin && !isPrezes;
+  document.querySelectorAll('.nav-dodaj-btn').forEach(b=>b.style.display=isPrezes?'none':'flex');
+  document.querySelectorAll('.nav-ogloszen-btn').forEach(b=>b.style.display=isPrezes?'flex':'none');
+  document.querySelectorAll('.admin-nav-btn').forEach(b=>b.style.display=(isAdmin||isPrezes)?'flex':'none');
+  document.querySelectorAll('.nav-cal-btn').forEach(b=>b.style.display=isEmp?'flex':'none');
+  document.querySelectorAll('.nav-feed-btn').forEach(b=>b.style.display=isEmp?'none':'flex');
+}
+
+window.showPage = function(pageId) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  if(pageId==='dashboard-page')    loadDashboard();
+  if(pageId==='history-page')      loadHistory();
+  if(pageId==='admin-page')        loadAdmin();
+  if(pageId==='add-page')          initAddForm();
+  if(pageId==='wpisy-page')        initWpisPage();
+  if(pageId==='calendar-page')    loadCalendar();
+  if(pageId==='feed-page')         loadFeed();
+  if(pageId==='announcement-page') initAnnouncementForm();
+};
+
+window.switchNav = function(pageId) { showPage(pageId); };
+
+window.switchAdminTab = function(tab, btn) {
+  ['employees','overview','entries','manage'].forEach(t=>{
+    document.getElementById(`admin-tab-${t}`).style.display = t===tab?'block':'none';
+  });
+  document.querySelectorAll('#admin-page .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(tab==='manage')   loadManageUsers();
+  if(tab==='overview') loadAdminOverview();
+};
+
+// ─────────────────────────────────────────────────────
+// AUTH
+// ─────────────────────────────────────────────────────
+window.doLogin = async function() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-password').value;
+  hideErr('login-error');
+  if(!email||!pass){ showErr('login-error','Podaj e-mail i hasło.'); return; }
+  const btn = document.getElementById('login-btn');
+  btn.innerHTML = '<div class="spinner"></div>';
+  btn.disabled = true;
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(err) {
+    let msg = 'Błąd logowania. Sprawdź dane.';
+    if(err.code==='auth/invalid-credential'||err.code==='auth/wrong-password') msg='Nieprawidłowy e-mail lub hasło.';
+    if(err.code==='auth/user-not-found')    msg='Konto o tym e-mailu nie istnieje.';
+    if(err.code==='auth/too-many-requests') msg='Za dużo prób. Spróbuj za chwilę.';
+    showErr('login-error', msg);
+    btn.innerHTML='Zaloguj się'; btn.disabled=false;
+  }
+};
+
+window.doLogout = async function() {
+  if(!confirm('Wylogować się?')) return;
+  await signOut(auth);
+};
+
+onAuthStateChanged(auth, async user => {
+  document.getElementById('loader').style.display = 'none';
+  if(!user){
+    currentUser=null; currentUserData=null;
+    document.getElementById('login-btn').innerHTML='Zaloguj się';
+    document.getElementById('login-btn').disabled=false;
+    showPage('login-page'); return;
+  }
+  try {
+    currentUser = user;
+  const snap = await getDoc(doc(db,'users',user.uid));
+  if(snap.exists()){
+    currentUserData = snap.data();
+  } else {
+    currentUserData = {name:user.email.split('@')[0], email:user.email, role:'employee'};
+    await setDoc(doc(db,'users',user.uid), currentUserData);
+  }
+  const isAdmin  = currentUserData.role==='admin';
+  const isPrezes = currentUserData.role==='prezes';
+  applyNavRoles(isAdmin, isPrezes);
+  const _lb=document.getElementById('login-btn');if(_lb){_lb.innerHTML='Zaloguj się';_lb.disabled=false;}
+  showSplash().then(()=>showPage('dashboard-page'));
+  } catch(err) {
+    console.error('Login flow error:', err);
+    const btn=document.getElementById('login-btn');
+    if(btn){btn.innerHTML='Zaloguj się';btn.disabled=false;}
+    showPage('login-page');
+    try{showErr('login-error','Błąd: '+(err.code||err.message));}catch(x){}
+  }
+});
+
+// ─────────────────────────────────────────────────────
+// DASHBOARD
+// ─────────────────────────────────────────────────────
+async function loadDashboard() {
+  if(!currentUser) return;
+  if(currentUserData?.role==='prezes'){loadPrezesOverview();return;}
+
+  // pokaż elementy pracownika, ukryj blok prezesa
+  const pg = document.getElementById('dashboard-page');
+  const contentEl = pg.querySelector('.content');
+  const statsGrid  = contentEl?.querySelector('.stats-grid');
+  const addBtn     = contentEl?.querySelector('.quick-add-btn');
+  const secHeader  = contentEl?.querySelector('.section-header');
+  const recentEl   = document.getElementById('recent-entries');
+  const prezesEl   = document.getElementById('prezes-emp-list');
+  if(statsGrid)  statsGrid.style.display  = 'grid';
+  if(addBtn)     addBtn.style.display     = 'flex';
+  if(secHeader)  secHeader.style.display  = 'flex';
+  if(recentEl)   recentEl.style.display   = 'flex';
+  if(prezesEl)   prezesEl.style.display   = 'none';
+
+  const now = new Date();
+  document.getElementById('greeting-time').textContent = greeting();
+  document.getElementById('greeting-name').textContent = currentUserData?.name||currentUser.email;
+  document.getElementById('greeting-date').textContent = now.toLocaleDateString('pl-PL',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('topbar-name').textContent   = currentUserData?.name||'Cześć!';
+  document.getElementById('topbar-sub').textContent    = now.toLocaleDateString('pl-PL',{day:'numeric',month:'long',year:'numeric'});
+
+  const start=new Date(now.getFullYear(),now.getMonth(),1);
+  const end  =new Date(now.getFullYear(),now.getMonth()+1,0);
+  const entries = await fetchEntries(currentUser.uid, start, end);
+  allEntries = entries;
+
+  const s = calcStats(entries);
+  document.getElementById('stat-hours').textContent    = s.hours;
+  document.getElementById('stat-days').textContent     = s.days;
+  document.getElementById('stat-vacation').textContent = s.vacation;
+  document.getElementById('stat-sick').textContent     = s.sick;
+
+  const levelCard = document.getElementById('level-card');
+  if(levelCard) levelCard.style.display = 'block';
+  renderLevelBar(s.hours);
+  const wdEl = document.getElementById('level-workdays-val');
+  if(wdEl) wdEl.textContent = workingDaysInMonth(now.getFullYear(), now.getMonth(), now.getDate());
+
+  const recent = [...entries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+  document.getElementById('recent-entries').innerHTML = recent.length
+    ? recent.map(renderEntry).join('')
+    : '<div class="empty-state"><div class="empty-icon">📋</div><p>Brak wpisów w tym miesiącu.</p></div>';
+}
+
+  async function loadPrezesOverview() {
+    const now = new Date();
+    // topbar i powitanie
+    const tn=document.getElementById('topbar-name');
+    const ts=document.getElementById('topbar-sub');
+    if(tn) tn.textContent=currentUserData?.name||'Prezes';
+    if(ts) ts.textContent=now.toLocaleDateString('pl-PL',{day:'numeric',month:'long',year:'numeric'});
+    const gt=document.getElementById('greeting-time');
+    const gn=document.getElementById('greeting-name');
+    const gd=document.getElementById('greeting-date');
+    if(gt) gt.textContent=greeting();
+    if(gn) gn.textContent=currentUserData?.name||'Prezes';
+    if(gd) gd.textContent=now.toLocaleDateString('pl-PL',{weekday:'long',day:'numeric',month:'long'});
+    // ukryj elementy pracownika, pokaż blok prezesa
+    const pg=document.getElementById('dashboard-page');
+    const contentEl=pg.querySelector('.content');
+    const statsGrid=contentEl?.querySelector('.stats-grid');
+    const addBtn=contentEl?.querySelector('.quick-add-btn');
+    const secHeader=contentEl?.querySelector('.section-header');
+    const recentEl=document.getElementById('recent-entries');
+    if(statsGrid) statsGrid.style.display='none';
+    if(addBtn) addBtn.style.display='none';
+    if(secHeader) secHeader.style.display='none';
+    if(recentEl) recentEl.style.display='none';
+    const levelCard=document.getElementById('level-card');
+    if(levelCard) levelCard.style.display='none';
+    const listWrap=document.getElementById('prezes-emp-list');
+    if(listWrap) listWrap.style.display='block';
+    // renderuj identyczny układ jak zakładka Pracownicy w adminie
+    await loadPrezesEmployees();
+  }
+
+  async function loadPrezesEmployees() {
+    const listWrap = document.getElementById('prezes-emp-list');
+    if(!listWrap) return;
+    listWrap.innerHTML = `
+      <div class="month-selector">
+        <button class="month-btn" onclick="changePrezesMonth(-1)">‹</button>
+        <div class="month-name" id="prezes-month-name">${monthLabel(adminMonth)}</div>
+        <button class="month-btn" onclick="changePrezesMonth(1)">›</button>
+      </div>
+      <div id="prezes-employees-list"><div class="empty-state"><div class="empty-icon">👥</div><p>Ładowanie...</p></div></div>`;
+    const start=new Date(adminMonth.getFullYear(),adminMonth.getMonth(),1);
+    const end  =new Date(adminMonth.getFullYear(),adminMonth.getMonth()+1,0);
+    const [usersSnap,entries] = await Promise.all([
+      getDocs(collection(db,'users')), fetchAllEntries(start,end)
+    ]);
+    const users = usersSnap.docs.map(d=>({uid:d.id,...d.data()})).filter(u=>u.role!=='prezes');
+    const c = document.getElementById('prezes-employees-list');
+    if(!c) return;
+    if(!users.length){ c.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><p>Brak pracowników.</p></div>'; return; }
+    c.innerHTML = users.map(u=>{
+      const ue=entries.filter(e=>e.uid===u.uid);
+      const st=calcStats(ue);
+      return `
+        <div class="employee-card">
+          <div class="employee-header">
+            <div class="employee-avatar">${initials(u.name)}</div>
+            <div>
+              <div class="employee-name">${u.name||'Brak nazwy'}</div>
+              <div class="employee-email">${u.email||''} ${u.role==='admin'?'· 👑':''}</div>
+            </div>
+          </div>
+          <div class="employee-stats">
+            <div class="emp-stat"><div class="emp-stat-value">${st.hours}</div><div class="emp-stat-label">godzin</div></div>
+            <div class="emp-stat"><div class="emp-stat-value">${st.days}</div><div class="emp-stat-label">dni pracy</div></div>
+            <div class="emp-stat"><div class="emp-stat-value">${st.vacation}</div><div class="emp-stat-label">urlop</div></div>
+          </div>
+          <button class="btn-export" id="exp-${u.uid}" onclick="exportEmployee('${u.uid}')">&#11015; Eksportuj CSV</button>
+        </div>`;
+    }).join('');
+  }
+
+  window.changePrezesMonth = function(d) {
+    adminMonth.setMonth(adminMonth.getMonth()+d);
+    const mn=document.getElementById('prezes-month-name');
+    if(mn) mn.textContent=monthLabel(adminMonth);
+    loadPrezesEmployees();
+  };
+
+
+async function loadHistory() {
+  if(!currentUser) return;
+  document.getElementById('history-month-name').textContent = monthLabel(historyMonth);
+  const start=new Date(historyMonth.getFullYear(),historyMonth.getMonth(),1);
+  const end  =new Date(historyMonth.getFullYear(),historyMonth.getMonth()+1,0);
+
+  if(currentUserData?.role==='prezes') {
+    await loadHistoryPrezes(start, end);
+    return;
+  }
+
+  const entries = await fetchEntries(currentUser.uid, start, end);
+  allEntries = entries;
+  const s = calcStats(entries);
+  document.getElementById('h-stat-hours').textContent    = s.hours;
+  document.getElementById('h-stat-days').textContent     = s.days;
+  document.getElementById('h-stat-vacation').textContent = s.vacation;
+  document.getElementById('h-stat-sick').textContent     = s.sick;
+  const sorted = [...entries].sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('history-entries').innerHTML = sorted.length
+    ? sorted.map(renderEntry).join('')
+    : '<div class="empty-state"><div class="empty-icon">📅</div><p>Brak wpisów w tym miesiącu.</p></div>';
+}
+
+async function loadHistoryPrezes(start, end) {
+  const [usersSnap, entries] = await Promise.all([
+    getDocs(collection(db,'users')), fetchAllEntries(start, end)
+  ]);
+  const users = usersSnap.docs.map(d=>({uid:d.id,...d.data()})).filter(u=>u.role!=='prezes');
+  const allS = calcStats(entries.filter(e=>e.type!=='announcement'));
+  document.getElementById('h-stat-hours').textContent    = allS.hours;
+  document.getElementById('h-stat-days').textContent     = allS.days;
+  document.getElementById('h-stat-vacation').textContent = allS.vacation;
+  document.getElementById('h-stat-sick').textContent     = allS.sick;
+  const entriesEl = document.getElementById('history-entries');
+  if(!users.length){ entriesEl.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><p>Brak pracowników.</p></div>'; return; }
+  entriesEl.innerHTML = users.map(u=>{
+    const ue = entries.filter(e=>e.uid===u.uid && e.type!=='announcement');
+    const st = calcStats(ue);
+    return `<div class="employee-card">
+      <div class="employee-header">
+        <div class="employee-avatar">${initials(u.name)}</div>
+        <div>
+          <div class="employee-name">${u.name||'Brak nazwy'}</div>
+          <div class="employee-email">${u.email||''} ${u.role==='admin'?'· 👑':''}</div>
+        </div>
+      </div>
+      <div class="employee-stats">
+        <div class="emp-stat"><div class="emp-stat-value">${st.hours}</div><div class="emp-stat-label">godzin</div></div>
+        <div class="emp-stat"><div class="emp-stat-value">${st.days}</div><div class="emp-stat-label">dni pracy</div></div>
+        <div class="emp-stat"><div class="emp-stat-value">${st.vacation}</div><div class="emp-stat-label">urlop</div></div>
+      </div>
+    </div>`;
+  }).join('') || '<div class="empty-state"><div class="empty-icon">📅</div><p>Brak wpisów w tym miesiącu.</p></div>';
+}
+
+window.changeMonth = function(d) { historyMonth.setMonth(historyMonth.getMonth()+d); loadHistory(); };
+
+// ─────────────────────────────────────────────────────
+// WPISY (feed) – tablica wszystkich wpisów
+// ─────────────────────────────────────────────────────
+let feedMonth = new Date();
+
+async function fetchAnnouncements(s, e) {
+  const ss=`${s.getFullYear()}-${String(s.getMonth()+1).padStart(2,'0')}-01`;
+  const ee=`${e.getFullYear()}-${String(e.getMonth()+1).padStart(2,'0')}-${String(e.getDate()).padStart(2,'0')}`;
+  const snap=await getDocs(collection(db,'announcements'));
+  return snap.docs.map(d=>({id:'ann_'+d.id,...d.data(),type:'announcement'})).filter(x=>x.date>=ss&&x.date<=ee);
+}
+
+async function loadFeed() {
+  document.getElementById('feed-month-name').textContent = monthLabel(feedMonth);
+  const start=new Date(feedMonth.getFullYear(),feedMonth.getMonth(),1);
+  const end  =new Date(feedMonth.getFullYear(),feedMonth.getMonth()+1,0);
+  const feedEl = document.getElementById('feed-list');
+  feedEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>Ładowanie...</p></div>';
+
+  const isPresezOrAdmin = currentUserData?.role==='prezes'||currentUserData?.role==='admin';
+  let entries, usersSnap;
+  if(isPresezOrAdmin) {
+    [entries, usersSnap] = await Promise.all([fetchAllEntries(start,end), getDocs(collection(db,'users'))]);
+  } else {
+    const [ownEntries, announcements, uSnap] = await Promise.all([
+      fetchEntries(currentUser.uid, start, end),
+      fetchAnnouncements(start, end),
+      getDocs(collection(db,'users'))
+    ]);
+    const seen = new Set();
+    entries = [...announcements, ...ownEntries].filter(e=>{ if(seen.has(e.id)) return false; seen.add(e.id); return true; });
+    usersSnap = uSnap;
+  }
+
+  const umap = {};
+  usersSnap.forEach(d=>{ umap[d.id]=d.data(); });
+  const sorted = [...entries].sort((a,b)=>b.date.localeCompare(a.date));
+  if(!sorted.length){ feedEl.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><p>Brak wpisów w tym miesiącu.</p></div>'; return; }
+  feedEl.innerHTML = sorted.map(e=>{
+    const u = umap[e.uid]||{};
+    const isAnn = e.type==='announcement';
+    if(isAnn) {
+      return `<div class="announcement-card">
+        <div class="ann-header">
+          <span class="ann-icon">📢</span>
+          <div>
+            <div class="ann-author">${u.name||'Prezes'}</div>
+            <div class="ann-date">${fmtShort(e.date)}</div>
+          </div>
+        </div>
+        ${e.title?`<div class="ann-title">${e.title}</div>`:''}
+        <div class="ann-body">${e.note||''}</div>
+      </div>`;
+    }
+    const cls = e.type||'work';
+    const hrs = (e.type==='vacation'||e.type==='sick') ? '1d' : `${e.hours}h`;
+    return `<div class="entry-item">
+      <div class="entry-icon ${cls}">${TYPE_ICONS[cls]||'📋'}</div>
+      <div class="entry-info">
+        <div class="entry-date">${fmtShort(e.date)} · <strong>${u.name||'Pracownik'}</strong></div>
+        <div class="entry-type">${TYPE_LABELS[cls]||cls}</div>
+        ${e.place?`<div class="entry-place">&#128205; ${escHtml(e.place)}</div>`:''}
+        ${e.note?`<div class="entry-note">${escHtml(e.note)}</div>`:''}
+      </div>
+      <div class="entry-hours ${cls}">${hrs}</div>
+    </div>`;
+  }).join('');
+}
+
+window.changeFeedMonth = function(d) {
+  feedMonth.setMonth(feedMonth.getMonth()+d);
+  loadFeed();
+};
+
+// ─────────────────────────────────────────────────────
+// OGŁOSZENIA (prezes)
+// ─────────────────────────────────────────────────────
+function initAnnouncementForm() {
+  const t=document.getElementById('ann-title');
+  const b=document.getElementById('ann-body');
+  if(t) t.value='';
+  if(b) b.value='';
+  hideErr('ann-error');
+}
+
+window.saveAnnouncement = async function() {
+  if(!currentUser) return;
+  const title = (document.getElementById('ann-title').value||'').trim();
+  const body  = (document.getElementById('ann-body').value||'').trim();
+  hideErr('ann-error');
+  if(!body){ showErr('ann-error','Wpisz treść ogłoszenia.'); return; }
+  const btn = document.querySelector('#announcement-page .btn-primary');
+  if(btn){ btn.disabled=true; btn.innerHTML='<div class="spinner"></div> Publikowanie...'; }
+  try {
+    await addDoc(collection(db,'announcements'), {
+      uid: currentUser.uid,
+      date: todayStr(),
+      title,
+      note: body,
+      createdAt: Timestamp.now()
+    });
+    showToast('📢 Ogłoszenie opublikowane!');
+    initAnnouncementForm();
+    showPage('feed-page');
+  } catch(err) {
+    showErr('ann-error','Błąd: '+err.message);
+  } finally {
+    if(btn){ btn.disabled=false; btn.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg> Opublikuj ogłoszenie'; }
+  }
+};
+
+// ─────────────────────────────────────────────────────
+// FETCH
+// ─────────────────────────────────────────────────────
+async function fetchEntries(uid, s, e) {
+    const ss = `${s.getFullYear()}-${String(s.getMonth()+1).padStart(2,'0')}-01`;
+    const ee = `${e.getFullYear()}-${String(e.getMonth()+1).padStart(2,'0')}-${String(e.getDate()).padStart(2,'0')}`;
+    const q = query(collection(db,'entries'),where('uid','==',uid));
+    const snap = await getDocs(q);
+    return snap.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.date>=ss&&x.date<=ee);
+  }
+
+  async function fetchAllEntries(s, e) {
+    const ss = `${s.getFullYear()}-${String(s.getMonth()+1).padStart(2,'0')}-01`;
+    const ee = `${e.getFullYear()}-${String(e.getMonth()+1).padStart(2,'0')}-${String(e.getDate()).padStart(2,'0')}`;
+    const q = query(collection(db,'entries'),where('date','>=',ss),where('date','<=',ee));
+    const snap = await getDocs(q);
+    return snap.docs.map(d=>({id:d.id,...d.data()}));
+  }
+
+// ─────────────────────────────────────────────────────
+// ADMIN
+// ─────────────────────────────────────────────────────
+async function loadAdmin() {
+  if(currentUserData?.role!=='admin'&&currentUserData?.role!=='prezes') return;
+  const _at=document.getElementById('admin-topbar-sub');
+  if(_at) _at.textContent=currentUserData.role==='prezes'?'Pulpit — Zespół':'Panel administratora';
+  document.getElementById('admin-month-name').textContent = monthLabel(adminMonth);
+  await loadAdminEmployees();
+}
+
+async function loadAdminEmployees() {
+  const start=new Date(adminMonth.getFullYear(),adminMonth.getMonth(),1);
+  const end  =new Date(adminMonth.getFullYear(),adminMonth.getMonth()+1,0);
+  const [usersSnap,entries] = await Promise.all([
+    getDocs(collection(db,'users')), fetchAllEntries(start,end)
+  ]);
+  const users = usersSnap.docs.map(d=>({uid:d.id,...d.data()}));
+  const c = document.getElementById('admin-employees-list');
+  if(!users.length){ c.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><p>Brak pracowników.</p></div>'; return; }
+  c.innerHTML = users.map(u=>{
+    const ue=entries.filter(e=>e.uid===u.uid);
+    const st=calcStats(ue);
+    return `
+      <div class="employee-card">
+        <div class="employee-header">
+          <div class="employee-avatar">${initials(u.name)}</div>
+          <div>
+            <div class="employee-name">${u.name||'Brak nazwy'}</div>
+            <div class="employee-email">${u.email||''} ${u.role==='admin'?'· 👑':''}</div>
+          </div>
+        </div>
+        <div class="employee-stats">
+          <div class="emp-stat"><div class="emp-stat-value">${st.hours}</div><div class="emp-stat-label">godzin</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">${st.days}</div><div class="emp-stat-label">dni pracy</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">${st.vacation}</div><div class="emp-stat-label">urlop</div></div>
+        </div>
+      <button class="btn-export" id="exp-${u.uid}" onclick="exportEmployee('${u.uid}')">&#11015; Eksportuj CSV</button>
+      <div class="role-select-wrap"><select class="role-select" id="rs-${u.uid}"><option value="employee" ${(u.role||'employee')==='employee'?'selected':''}>Pracownik</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option><option value="prezes" ${u.role==='prezes'?'selected':''}>Prezes</option></select><button class="btn-role" onclick="window.changeRole('${u.uid}')">Zmień rolę</button></div>
+      ${currentUserData&&currentUserData.role==='admin'&&u.uid!==currentUser.uid?`<button class="btn-del-emp" onclick="deleteEmployee('${u.uid}','${u.name||u.email}')">🗑 Usuń pracownika</button>`:''}
+      </div>`;
+  }).join('');
+}
+
+async function loadAdminOverview() {
+  const start=new Date(adminMonth.getFullYear(),adminMonth.getMonth(),1);
+  const end  =new Date(adminMonth.getFullYear(),adminMonth.getMonth()+1,0);
+  const entries = await fetchAllEntries(start,end);
+  const c = document.getElementById('admin-all-entries');
+  if(!entries.length){ c.innerHTML='<div class="empty-state"><div class="empty-icon">📊</div><p>Brak wpisów.</p></div>'; return; }
+  c.innerHTML = entries.map(e=>`
+    <div class="entry-item">
+      <div class="entry-icon ${e.type}">${TYPE_ICONS[e.type]||'📋'}</div>
+      <div class="entry-info">
+        <div class="entry-date">${fmtShort(e.date)} · <strong>${e.userName||'Pracownik'}</strong></div>
+        <div class="entry-type">${TYPE_LABELS[e.type]||e.type}</div>
+        ${e.note?`<div class="entry-note">${e.note}</div>`:''}
+      </div>
+      <div class="entry-hours ${e.type}">${(e.type==='work'||e.type==='other')?e.hours+'h':'1d'}</div>
+    </div>`).join('');
+}
+
+async function loadManageUsers() {
+  const snap = await getDocs(collection(db,'users'));
+  const users = snap.docs.map(d=>({uid:d.id,...d.data()}));
+  const c = document.getElementById('manage-users-list');
+  if(!users.length){ c.innerHTML='<p>Brak użytkowników.</p>'; return; }
+  c.innerHTML = users.map(u=>`
+    <div class="user-row">
+      <div>
+        <div style="font-weight:600;">${u.name||'Brak nazwy'}</div>
+        <div style="font-size:0.78rem; color:var(--text-3);">${u.email} · ${u.role==='admin'?'👑 Admin':'👤 Pracownik'}</div>
+      </div>
+    </div>`).join('');
+}
+
+window.changeAdminMonth = function(d) {
+  adminMonth.setMonth(adminMonth.getMonth()+d);
+  document.getElementById('admin-month-name').textContent = monthLabel(adminMonth);
+  loadAdminEmployees();
+  if(document.getElementById('admin-tab-overview').style.display!=='none') loadAdminOverview();
+};
+
+window.createEmployee = async function() {
+  if(currentUserData?.role!=='admin') return;
+  const name=document.getElementById('new-user-name').value.trim();
+  const email=document.getElementById('new-user-email').value.trim();
+  const pass=document.getElementById('new-user-password').value;
+  const role=document.getElementById('new-user-role').value;
+  hideErr('manage-error');
+  if(!name||!email||!pass){ showErr('manage-error','Wypełnij wszystkie pola.'); return; }
+  if(pass.length<6){ showErr('manage-error','Hasło musi mieć min. 6 znaków.'); return; }
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await setDoc(doc(db,'users',cred.user.uid),{name,email,role,createdAt:Timestamp.now()});
+    showToast(`✅ Konto "${name}" utworzone!`);
+    document.getElementById('new-user-name').value='';
+    document.getElementById('new-user-email').value='';
+    document.getElementById('new-user-password').value='';
+    loadManageUsers();
+  } catch(err){
+    let msg='Błąd: '+err.message;
+    if(err.code==='auth/email-already-in-use') msg='Ten e-mail jest już zajęty.';
+    if(err.code==='auth/invalid-email')        msg='Nieprawidłowy adres e-mail.';
+    if(err.code==='auth/weak-password')        msg='Hasło za słabe (min. 6 znaków).';
+    showErr('manage-error', msg);
+  }
+};
+
+// ─────────────────────────────────────────────────────
+// MODAL
+// ─────────────────────────────────────────────────────
+window.openEntryModal = function(id) {
+  const e = allEntries.find(x=>x.id===id);
+  if(!e) return;
+  currentEntryId = id;
+  document.getElementById('modal-title').textContent=`${TYPE_ICONS[e.type]||''} ${TYPE_LABELS[e.type]||'Wpis'}`;
+  document.getElementById('modal-content').innerHTML=`
+    <div class="modal-row">
+      <div class="modal-row-label">Data</div>
+      <div class="modal-row-value">${fmtFull(e.date)}</div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-row-label">Typ</div>
+      <div class="modal-row-value"><span class="badge badge-${e.type}">${TYPE_LABELS[e.type]}</span></div>
+    </div>
+    ${(e.type==='work'||e.type==='other')?`
+    <div class="modal-row">
+      <div class="modal-row-label">Godziny</div>
+      <div class="modal-row-value" style="font-size:1.5rem;font-weight:700;color:var(--orange);">${e.hours}h</div>
+    </div>`:''}
+    ${e.place?`
+    <div class="modal-row">
+      <div class="modal-row-label">Miejsce pracy</div>
+      <div class="modal-row-value">&#128205; ${escHtml(e.place)}</div>
+    </div>`:''}
+    ${e.note?`
+    <div class="modal-row">
+      <div class="modal-row-label">Notatka</div>
+      <div class="modal-row-value">${escHtml(e.note)}</div>
+    </div>`:''}`;
+  document.getElementById('entry-modal').classList.add('show');
+};
+
+window.closeModal = function() {
+  document.getElementById('entry-modal').classList.remove('show');
+  currentEntryId=null;
+};
+
+window.deleteCurrentEntry = async function() {
+  if(!currentEntryId) return;
+  if(!confirm('Usunąć ten wpis?')) return;
+  try {
+    await deleteDoc(doc(db,'entries',currentEntryId));
+    showToast('🗑️ Wpis usunięty');
+    closeModal();
+    const active=document.querySelector('.page.active');
+    if(active?.id==='history-page')   loadHistory();
+    if(active?.id==='dashboard-page') loadDashboard();
+  } catch(err){ showToast('❌ Błąd: '+err.message); }
+};
+
+// ─────────────────────────────────────────────────────
+// FORMULARZ DODAWANIA WPISU
+// ─────────────────────────────────────────────────────
+function initAddForm() {
+  selectedType = 'work';
+  hoursValue = 8;
+  const di = document.getElementById('entry-date');
+  if(di) di.value = todayStr();
+  const hd = document.getElementById('hours-display');
+  if(hd) hd.textContent = hoursValue;
+  const hs = document.getElementById('hours-section');
+  if(hs) hs.style.display = 'block';
+  ['work','vacation','sick','other'].forEach(t => {
+    const el = document.getElementById('type-'+t);
+    if(el) el.classList.toggle('selected', t==='work');
+  });
+  const ps = document.getElementById('place-section');
+  if(ps) ps.style.display = 'block';
+  const pl = document.getElementById('entry-place');
+  if(pl) pl.value = '';
+  hideErr('add-error');
+  const nt = document.getElementById('entry-note');
+  if(nt) nt.value = '';
+}
+
+window.selectType = function(type) {
+  selectedType = type;
+  ['work','vacation','sick','other'].forEach(t => {
+    const el = document.getElementById('type-'+t);
+    if(el) el.classList.toggle('selected', t===type);
+  });
+  const hide = (type==='vacation'||type==='sick');
+  const hs = document.getElementById('hours-section');
+  if(hs) hs.style.display = hide ? 'none' : 'block';
+  const ps = document.getElementById('place-section');
+  if(ps) ps.style.display = hide ? 'none' : 'block';
+};
+
+window.changeHours = function(delta) {
+  hoursValue = Math.max(0.5, Math.min(24, hoursValue + delta));
+  const hd = document.getElementById('hours-display');
+  if(hd) hd.textContent = hoursValue;
+};
+
+window.saveEntry = async function() {
+  if(!currentUser){ showErr('add-error','Nie jesteś zalogowany.'); return; }
+  const date  = document.getElementById('entry-date').value;
+  const note  = document.getElementById('entry-note').value.trim();
+  const place = document.getElementById('entry-place').value.trim();
+  const needsPlace = (selectedType!=='vacation' && selectedType!=='sick');
+  hideErr('add-error');
+  if(!date){ showErr('add-error','Wybierz datę.'); return; }
+  if(needsPlace && !place){
+    showErr('add-error','Podaj miejsce pracy — to pole jest obowiązkowe.');
+    const pl=document.getElementById('entry-place'); if(pl) pl.focus();
+    return;
+  }
+  const entryData = {
+    uid: currentUser.uid,
+    date,
+    type: selectedType,
+    note,
+    place: needsPlace ? place : '',
+    hours: (selectedType==='vacation'||selectedType==='sick') ? 0 : hoursValue,
+    createdAt: Timestamp.now()
+  };
+  const btn = document.querySelector('#add-page .btn-success');
+  if(btn){ btn.disabled=true; btn.innerHTML='<div class="spinner"></div> Zapisywanie...'; }
+  try {
+    await addDoc(collection(db,'entries'), entryData);
+    showToast('✅ Wpis zapisany!');
+    initAddForm();
+    showPage('dashboard-page');
+  } catch(err) {
+    showErr('add-error','Błąd: '+err.message);
+  } finally {
+    if(btn){ btn.disabled=false; btn.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Zapisz wpis'; }
+  }
+};
+
+// ─────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────
+window.addEventListener('load', ()=>{
+  const di=document.getElementById('entry-date');
+  if(di) di.value=todayStr();
+  historyMonth=new Date(); adminMonth=new Date();
+  document.getElementById('login-password').addEventListener('keydown', e=>{
+    if(e.key==='Enter') doLogin();
+  });
+});
+
+// ── SPLASH ──
+function showSplash(){
+  return new Promise(resolve=>{
+    const el=document.getElementById('splash');
+    el.classList.remove('fade-out','play');
+    el.style.display='flex';
+    const run=()=>{
+      void el.offsetWidth;        // reset, aby animacje wystartowały od nowa
+      el.classList.add('play');
+      setTimeout(()=>{
+        el.classList.add('fade-out');
+        setTimeout(()=>{el.style.display='none';el.classList.remove('fade-out','play');resolve();},850);
+      },2150);
+    };
+    if(document.fonts&&document.fonts.ready){document.fonts.ready.then(run);}else{setTimeout(run,150);}
+  });
+}
+
+function initWpisPage(){
+  const d=document.getElementById('wpis-date');
+  if(d){const t=new Date();d.value=t.toISOString().split('T')[0];}
+}
+window.submitWpis = async function(){
+  const date=document.getElementById('wpis-date').value;
+  const type=document.querySelector('#wpis-type-sel .type-btn.active')?.dataset.type||'praca';
+  const note=document.getElementById('wpis-note').value.trim();
+  if(!date){showToast('⚠️ Wybierz datę');return;}
+  if(!currentUser)return;
+  try{
+    await addDoc(collection(db,'entries'),{uid:currentUser.uid,date,type,note,hours:0,createdAt:Timestamp.now()});
+    showToast('✅ Wpis zapisany!');
+    document.getElementById('wpis-note').value='';
+    showPage('dashboard-page');
+  }catch(e){showToast('❌ '+e.message);}
+};
+
+// ── CHANGE ROLE ──
+window.changeRole = async function(uid){
+  const sel=document.getElementById('rs-'+uid);
+  if(!sel)return;
+  const role=sel.value;
+  const labels={employee:'Pracownik',admin:'Admin',prezes:'Prezes'};
+  if(!confirm('Zmienić rolę na: '+labels[role]+'?'))return;
+  try{
+    await setDoc(doc(db,'users',uid),{role},{merge:true});
+    showToast('✅ Rola zmieniona na '+labels[role]);
+    loadAdminEmployees();
+  }catch(e){showToast('❌ '+e.message);}
+};
+
+// ── ADMIN ENTRIES TAB ──
+async function loadAdminEntries(){
+  const start=new Date(adminMonth.getFullYear(),adminMonth.getMonth(),1);
+  const end  =new Date(adminMonth.getFullYear(),adminMonth.getMonth()+1,0);
+  const entries=await fetchAllEntries(start,end);
+  const usersSnap=await getDocs(collection(db,'users'));
+  const umap={};
+  usersSnap.forEach(d=>{umap[d.id]=d.data();});
+  const c=document.getElementById('admin-all-entries2');
+  if(!c)return;
+  if(!entries.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><p>Brak wpisów</p></div>';return;}
+  c.innerHTML=entries.sort((a,b)=>b.date.localeCompare(a.date)).map(e=>{
+    const u=umap[e.uid]||{name:e.uid};
+    return '<div class="entry-card"><div class="entry-meta"><span class="entry-date">'+e.date+'</span><span class="entry-type '+e.type+'">'+e.type+'</span></div><div class="entry-hours">'+(e.hours||0)+'h</div><div style="font-size:12px;color:#888;margin-top:2px">'+(u.name||e.uid)+(e.note?' · '+e.note:'')+'</div></div>';
+  }).join('');
+}
+</script>
+
+
+<!-- ====================================================
+     OGŁOSZENIE (tylko prezes)
+     ==================================================== -->
+<div id="announcement-page" class="page">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">Nowe ogłoszenie</div>
+    </div>
+    <div class="topbar-brand">MERC-KOP</div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-title">Treść ogłoszenia</div>
+      <div class="form-group">
+        <label class="form-label">Tytuł</label>
+        <input type="text" id="ann-title" class="form-input" placeholder="Np. Zebranie, Zmiana grafiku...">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Treść</label>
+        <textarea id="ann-body" class="form-input" style="min-height:120px;" placeholder="Wpisz treść ogłoszenia..."></textarea>
+      </div>
+    </div>
+    <div id="ann-error" class="error-msg" style="margin-bottom:12px;"></div>
+    <button class="btn btn-primary" onclick="saveAnnouncement()">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+      Opublikuj ogłoszenie
+    </button>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="switchNav('dashboard-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span class="nav-label">Pulpit</span>
+    </button>
+    <button class="nav-item nav-dodaj-btn" onclick="switchNav('add-page', this)" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      <span class="nav-label">Dodaj</span>
+    </button>
+    <button class="nav-item active nav-ogloszen-btn" onclick="switchNav('announcement-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+      <span class="nav-label">Ogłoszenie</span>
+    </button>
+    <button class="nav-item" onclick="switchNav('history-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle></svg>
+      <span class="nav-label">Historia</span>
+    </button>
+    <button class="nav-item nav-cal-btn" style="display:none" onclick="switchNav('calendar-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      <span class="nav-label">Kalendarz</span>
+    </button>
+    <button class="nav-item nav-feed-btn" style="display:none" onclick="switchNav('feed-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+      <span class="nav-label">Wpisy</span>
+    </button>
+    <button class="nav-item admin-nav-btn" style="display:none" onclick="switchNav('admin-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      <span class="nav-label">Zespół</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ====================================================
+     WPISY – tablica ogłoszeń i wpisów
+     ==================================================== -->
+<div id="feed-page" class="page">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">Wpisy</div>
+      <div class="topbar-sub" id="feed-month-sub"></div>
+    </div>
+    <div class="topbar-brand">MERC-KOP</div>
+  </div>
+  <div class="content">
+    <div class="month-selector">
+      <button class="month-btn" onclick="changeFeedMonth(-1)">‹</button>
+      <div class="month-name" id="feed-month-name">—</div>
+      <button class="month-btn" onclick="changeFeedMonth(1)">›</button>
+    </div>
+    <div id="feed-list" class="entry-list">
+      <div class="empty-state"><div class="empty-icon">📋</div><p>Ładowanie...</p></div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="switchNav('dashboard-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span class="nav-label">Pulpit</span>
+    </button>
+    <button class="nav-item nav-dodaj-btn" onclick="switchNav('add-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      <span class="nav-label">Dodaj</span>
+    </button>
+    <button class="nav-item nav-ogloszen-btn" style="display:none" onclick="switchNav('announcement-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+      <span class="nav-label">Ogłoszenie</span>
+    </button>
+    <button class="nav-item" onclick="switchNav('history-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle></svg>
+      <span class="nav-label">Historia</span>
+    </button>
+    <button class="nav-item nav-cal-btn" style="display:none" onclick="switchNav('calendar-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      <span class="nav-label">Kalendarz</span>
+    </button>
+    <button class="nav-item active nav-feed-btn" style="display:none" onclick="switchNav('feed-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+      <span class="nav-label">Wpisy</span>
+    </button>
+    <button class="nav-item admin-nav-btn" style="display:none" onclick="switchNav('admin-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      <span class="nav-label">Zespół</span>
+    </button>
+  </nav>
+</div>
+
+
+<!-- ====================================================
+     KALENDARZ OBECNOSCI (pracownik)
+     ==================================================== -->
+<div id="calendar-page" class="page">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">Kalendarz</div>
+      <div class="topbar-sub">Twoja obecnosc</div>
+    </div>
+    <div class="topbar-brand">MERC-KOP</div>
+  </div>
+  <div class="content">
+    <div class="month-selector">
+      <button class="month-btn" onclick="changeCalMonth(-1)">&lsaquo;</button>
+      <div class="month-name" id="cal-month-name">&mdash;</div>
+      <button class="month-btn" onclick="changeCalMonth(1)">&rsaquo;</button>
+    </div>
+
+    <div class="card cal-card">
+      <div id="cal-grid" class="cal-grid"></div>
+      <div class="cal-legend">
+        <span><i class="lg lg-work"></i>w pracy</span>
+        <span><i class="lg lg-miss"></i>brak wpisu</span>
+        <span><i class="lg lg-vac"></i>urlop</span>
+        <span><i class="lg lg-sick"></i>chorobowe</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Podsumowanie miesiaca</div>
+      <div id="cal-sum" class="cal-sum"></div>
+    </div>
+
+    <div id="cal-ann-wrap" style="display:none;">
+      <div class="section-title" style="margin:20px 0 10px;">Ogloszenia</div>
+      <div id="cal-ann" class="entry-list"></div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="switchNav('dashboard-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span class="nav-label">Pulpit</span>
+    </button>
+    <button class="nav-item nav-dodaj-btn" onclick="switchNav('add-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      <span class="nav-label">Dodaj</span>
+    </button>
+    <button class="nav-item nav-ogloszen-btn" style="display:none" onclick="switchNav('announcement-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+      <span class="nav-label">Ogloszenie</span>
+    </button>
+    <button class="nav-item" onclick="switchNav('history-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle></svg>
+      <span class="nav-label">Historia</span>
+    </button>
+    <button class="nav-item active nav-cal-btn" onclick="switchNav('calendar-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      <span class="nav-label">Kalendarz</span>
+    </button>
+    <button class="nav-item nav-feed-btn" style="display:none" onclick="switchNav('feed-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+      <span class="nav-label">Wpisy</span>
+    </button>
+    <button class="nav-item admin-nav-btn" style="display:none" onclick="switchNav('admin-page', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      <span class="nav-label">Zespol</span>
+    </button>
+  </nav>
+</div>
+
+</body></html>

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "klient-preview",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "5601",
+        "--directory",
+        "C:\Users\adas\Desktop\ewidencja-klient"
+      ],
+      "port": 5601
+    }
+  ]
+}
