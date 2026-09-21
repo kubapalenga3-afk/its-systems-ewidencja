@@ -1235,56 +1235,88 @@ textarea.form-input {
       <div class="greeting-date" id="greeting-date">—</div>
     </div>
 
-    <div class="workdays-hint" id="workdays-hint"></div>
+    <div id="dashboard-employee-view">
+      <div class="workdays-hint" id="workdays-hint"></div>
 
-    <div class="card" id="leave-card" style="display:none;">
-      <div class="card-title" id="leave-card-title">Twój urlop</div>
-      <div class="pool-row">
-        <div class="pool-row-label">🏖️ Urlop wypoczynkowy</div>
-        <div class="pool-row-bar"><div class="pool-row-fill" id="pool-fill-vac"></div></div>
-        <div class="pool-row-val" id="pool-val-vac">—</div>
+      <div class="card" id="leave-card" style="display:none;">
+        <div class="card-title" id="leave-card-title">Twój urlop</div>
+        <div class="pool-row">
+          <div class="pool-row-label">🏖️ Urlop wypoczynkowy</div>
+          <div class="pool-row-bar"><div class="pool-row-fill" id="pool-fill-vac"></div></div>
+          <div class="pool-row-val" id="pool-val-vac">—</div>
+        </div>
+        <div class="pool-row">
+          <div class="pool-row-label">🤒 Zwolnienia L4</div>
+          <div class="pool-row-val" id="pool-val-sick">—</div>
+        </div>
       </div>
-      <div class="pool-row">
-        <div class="pool-row-label">🤒 Zwolnienia L4</div>
-        <div class="pool-row-val" id="pool-val-sick">—</div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">⏱</div>
+          <div class="stat-value" id="stat-hours">0</div>
+          <div class="stat-label">godzin pracy</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <div class="stat-value" id="stat-days">0</div>
+          <div class="stat-label">dni roboczych</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🏖️</div>
+          <div class="stat-value" id="stat-vacation">0</div>
+          <div class="stat-label">dni urlopu</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🤒</div>
+          <div class="stat-value" id="stat-sick">0</div>
+          <div class="stat-label">L4</div>
+        </div>
       </div>
+
+      <button class="quick-add-btn" onclick="showPage('add-page')">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line>
+        </svg>
+        Dodaj wpis
+      </button>
+
+      <div class="section-header">
+        <div class="section-title">Ostatnie wpisy</div>
+        <button class="btn btn-ghost btn-sm" onclick="showPage('history-page')">Wszystkie →</button>
+      </div>
+      <div id="recent-entries" class="entry-list"></div>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon">⏱</div>
-        <div class="stat-value" id="stat-hours">0</div>
-        <div class="stat-label">godzin pracy</div>
+    <div id="dashboard-admin-view" style="display:none;">
+      <div class="card">
+        <div class="card-title">Nieobecności dziś</div>
+        <div id="admin-today-status"></div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon">📅</div>
-        <div class="stat-value" id="stat-days">0</div>
-        <div class="stat-label">dni roboczych</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">🏖️</div>
-        <div class="stat-value" id="stat-vacation">0</div>
-        <div class="stat-label">dni urlopu</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">🤒</div>
-        <div class="stat-value" id="stat-sick">0</div>
-        <div class="stat-label">L4</div>
-      </div>
-    </div>
 
-    <button class="quick-add-btn" onclick="showPage('add-page')">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-        <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line>
-      </svg>
-      Dodaj wpis
-    </button>
+      <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="stat-card">
+          <div class="stat-icon">⏱</div>
+          <div class="stat-value" id="ov-stat-hours">0</div>
+          <div class="stat-label">godzin w tym mies.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🏖️</div>
+          <div class="stat-value" id="ov-stat-vacation">0</div>
+          <div class="stat-label">dni urlopu w mies.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🤒</div>
+          <div class="stat-value" id="ov-stat-sick">0</div>
+          <div class="stat-label">dni L4 w mies.</div>
+        </div>
+      </div>
 
-    <div class="section-header">
-      <div class="section-title">Ostatnie wpisy</div>
-      <button class="btn btn-ghost btn-sm" onclick="showPage('history-page')">Wszystkie →</button>
+      <button class="quick-add-btn" onclick="showPage('admin-page')">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Zobacz zespół
+      </button>
     </div>
-    <div id="recent-entries" class="entry-list"></div>
   </div>
 
   <nav class="bottom-nav">
@@ -1858,6 +1890,8 @@ window.toggleViewMode = function() {
   showToast(previewAsEmployee ? '👤 Podgląd jako pracownik' : '👑 Wróć do panelu administratora');
   if(previewAsEmployee && document.getElementById('admin-page').classList.contains('active')){
     showPage('dashboard-page');
+  } else if(document.getElementById('dashboard-page').classList.contains('active')){
+    loadDashboard();
   }
 };
 
@@ -2002,6 +2036,11 @@ async function loadDashboard() {
   document.getElementById('topbar-name').textContent   = currentUserData?.name||'Cześć!';
   document.getElementById('topbar-sub').textContent    = now.toLocaleDateString('pl-PL',{day:'numeric',month:'long',year:'numeric'});
 
+  const showAdminView = isRealAdmin && !previewAsEmployee;
+  document.getElementById('dashboard-employee-view').style.display = showAdminView ? 'none' : 'block';
+  document.getElementById('dashboard-admin-view').style.display    = showAdminView ? 'block' : 'none';
+  if(showAdminView){ await loadDashboardAdminOverview(now); return; }
+
   const yStart = new Date(now.getFullYear(),0,1), yEnd = new Date(now.getFullYear(),11,31);
   const yearEntries = await fetchEntries(currentUser.uid, yStart, yEnd);
   const ym = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
@@ -2029,6 +2068,44 @@ async function loadDashboard() {
   document.getElementById('recent-entries').innerHTML = recent.length
     ? recent.map(renderEntry).join('')
     : '<div class="empty-state"><div class="empty-icon">📋</div><p>Brak wpisów w tym miesiącu.</p></div>';
+}
+
+async function loadDashboardAdminOverview(now) {
+  now = now || new Date();
+  const today = todayStr();
+  const usersSnap = await getDocs(collection(db,'users'));
+  const users = usersSnap.docs.map(d=>({uid:d.id,...d.data()})).filter(u=>u.active!==false);
+
+  const mStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const mEnd   = new Date(now.getFullYear(), now.getMonth()+1, 0);
+  const monthEntries = await fetchAllEntries(mStart, mEnd);
+  const todayEntries = monthEntries.filter(e=>e.date===today);
+
+  const absentToday = users
+    .map(u => ({ u, e: todayEntries.find(e=>e.uid===u.uid && (e.type==='vacation'||e.type==='sick')) }))
+    .filter(x=>x.e);
+
+  document.getElementById('admin-today-status').innerHTML = absentToday.length
+    ? absentToday.map(({u,e})=>`
+        <div class="entry-item" style="cursor:default;">
+          <div class="entry-icon ${e.type}">${TYPE_ICONS[e.type]}</div>
+          <div class="entry-info">
+            <div class="entry-type">${escHtml(u.name||u.email||'')}</div>
+            <div class="entry-date">${TYPE_LABELS[e.type]}</div>
+          </div>
+        </div>`).join('')
+    : '<div style="color:var(--text-3);font-size:0.9rem;padding:4px 2px;">Brak zgłoszonych nieobecności na dziś.</div>';
+
+  let sumHours=0, sumVac=0, sumSick=0;
+  monthEntries.forEach(e=>{
+    if(e.type==='work'||e.type==='other') sumHours += Number(e.hours)||0;
+    else if(e.type==='vacation') sumVac++;
+    else if(e.type==='sick')     sumSick++;
+  });
+
+  document.getElementById('ov-stat-hours').textContent     = round1(sumHours);
+  document.getElementById('ov-stat-vacation').textContent  = sumVac;
+  document.getElementById('ov-stat-sick').textContent      = sumSick;
 }
 
 async function loadHistory() {

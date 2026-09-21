@@ -153,6 +153,29 @@ patrz "Stan na dziś" i "Zmiany" wyżej/niżej.
   Dodana ta domena do Firebase Auth → Authorized domains (inaczej logowanie na żywej
   stronie kończyłoby się `auth/unauthorized-domain`).
 
+## Zmiany z 2026-09-21
+
+- **Nowość: widok "Pulpit" dla admina jest teraz inny niż dla pracownika.** Powód:
+  admin to szef, który sam nie loguje czasu pracy — osobisty dashboard (Twój urlop,
+  dni robocze, ostatnie wpisy) był dla niego nieistotny. Teraz realny admin (poza
+  trybem "podgląd jako pracownik") widzi na Pulpicie:
+  - kartę "Nieobecności dziś" — kto ma dziś zgłoszony urlop/L4 (`#admin-today-status`,
+    `loadDashboardAdminOverview()`, ok. linii 2078), pusty stan "Brak zgłoszonych
+    nieobecności na dziś." (świadomie ostrożne sformułowanie — to tylko brak wpisu
+    urlopowego na dziś, NIE potwierdzona obecność; ktoś może być na urlopie i po
+    prostu jeszcze tego nie wpisać)
+  - 3 kafelki: godziny w tym miesiącu (cały zespół), dni urlopu, dni L4 — sumy po
+    wszystkich kontach (`getDocs(collection(db,'users'))` + `fetchAllEntries`, ten
+    sam wzorzec co w zakładce Pracownicy). Była jeszcze czwarta kafelka "aktywne
+    osoby" — usunięta na życzenie klienta jako zbędna (to tylko liczba kont).
+  - przycisk "Zobacz zespół" (zamiast "Dodaj wpis") prowadzący do zakładki Zespół
+  Włączenie "podgląd jako pracownik" (ikona oka) pokazuje z powrotem normalny
+  osobisty dashboard — `toggleViewMode()` odświeża teraz `loadDashboard()` na żywo,
+  jeśli użytkownik jest akurat na Pulpicie, więc przełącznik działa bez przeładowania.
+  HTML: dwa kontenery `#dashboard-employee-view` / `#dashboard-admin-view` w
+  `dashboard-page`, przełączane w `loadDashboard()` na podstawie
+  `isRealAdmin && !previewAsEmployee`.
+
 ## Ważne przy dalszej pracy
 
 - To jest **osobny produkt dla klienta**, nie kolejna wersja MERCKOP — nie mieszać baz danych,
