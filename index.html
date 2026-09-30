@@ -1683,13 +1683,45 @@ textarea.form-input {
     <div class="modal-handle"></div>
     <div class="modal-title" id="modal-title">Szczegóły wpisu</div>
     <div id="modal-content"></div>
-    <div style="display:flex; gap:10px; margin-top:24px;">
+    <div id="modal-admin-edit" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">Data</label>
+        <input type="date" id="ae-date" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Typ</label>
+        <select id="ae-type" class="form-input" onchange="updateAdminEditTypeSections()">
+          <option value="work">💼 Praca</option>
+          <option value="vacation">🏖️ Urlop wypoczynkowy</option>
+          <option value="sick">🤒 Zwolnienie L4</option>
+          <option value="other">📌 Inne</option>
+        </select>
+      </div>
+      <div class="form-group" id="ae-hours-group">
+        <label class="form-label">Godziny</label>
+        <input type="number" id="ae-hours" class="form-input" min="0" max="24" step="0.5">
+      </div>
+      <div class="form-group" id="ae-place-group">
+        <label class="form-label">Miejsce pracy</label>
+        <input type="text" id="ae-place" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notatka</label>
+        <input type="text" id="ae-note" class="form-input">
+      </div>
+      <div id="admin-edit-error" class="error-msg"></div>
+    </div>
+    <div id="modal-view-actions" style="display:flex; gap:10px; margin-top:24px;">
       <button class="btn btn-secondary btn-sm" id="modal-edit-btn" onclick="editCurrentEntry()">Edytuj</button>
       <button class="btn btn-danger btn-sm" onclick="deleteCurrentEntry()">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4h6v2"></path></svg>
         Usuń
       </button>
       <button class="btn btn-outline btn-sm" onclick="closeModal()">Zamknij</button>
+    </div>
+    <div id="modal-edit-actions" style="display:none; gap:10px; margin-top:24px;">
+      <button class="btn btn-primary btn-sm" onclick="saveAdminEntryEdit()">Zapisz</button>
+      <button class="btn btn-outline btn-sm" onclick="cancelAdminEntryEdit()">Anuluj</button>
     </div>
   </div>
 </div>
@@ -1750,6 +1782,7 @@ let editingEntryId  = null;
 let pendingEditEntry = null;
 let isRealAdmin      = false;
 let previewAsEmployee = false;
+let showRemovedEmployees = false;
 
 const TYPE_LABELS = { work:'Praca', vacation:'Urlop wypoczynkowy', sick:'Zwolnienie L4', other:'Inne' };
 const TYPE_ICONS  = { work:'💼', vacation:'🏖️', sick:'🤒', other:'📌' };
@@ -1852,7 +1885,7 @@ function renderEntryReadonly(e) {
   const cls = e.type||'work';
   const hrs = DAY_TYPES.includes(cls) ? '1d' : `${e.hours}h`;
   return `
-    <div class="entry-item" style="cursor:default;">
+    <div class="entry-item" onclick="openEntryModal('${e.id}')">
       <div class="entry-icon ${cls}">${TYPE_ICONS[cls]||'📋'}</div>
       <div class="entry-info">
         <div class="entry-date">${fmtShort(e.date)}</div>
@@ -2240,10 +2273,21 @@ async function loadAdminEmployees() {
   const [usersSnap, monthEntries, yearEntries] = await Promise.all([
     getDocs(collection(db,'users')), fetchAllEntries(start,end), fetchAllEntries(yStart,yEnd)
   ]);
-  const users = usersSnap.docs.map(d=>({uid:d.id,...d.data()}));
+  allEntries = monthEntries;
+  const allUsers = usersSnap.docs.map(d=>({uid:d.id,...d.data()}));
+  const removedCount = allUsers.filter(u=>u.active===false).length;
+  const users = showRemovedEmployees ? allUsers : allUsers.filter(u=>u.active!==false);
   const c = document.getElementById('admin-employees-list');
-  if(!users.length){ c.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><p>Brak pracowników.</p></div>'; return; }
-  c.innerHTML = users.map(u=>{
+  const toggleHtml = removedCount
+    ? `<button class="btn btn-ghost btn-sm" style="margin-bottom:10px;" onclick="window.toggleShowRemoved()">
+         ${showRemovedEmployees ? '▾ Ukryj usuniętych' : `▸ Pokaż usuniętych (${removedCount})`}
+       </button>`
+    : '';
+  if(!users.length){
+    c.innerHTML = toggleHtml + '<div class="empty-state"><div class="empty-icon">👥</div><p>Brak pracowników.</p></div>';
+    return;
+  }
+  c.innerHTML = toggleHtml + users.map(u=>{
     const ue = monthEntries.filter(e=>e.uid===u.uid).sort((a,b)=>b.date.localeCompare(a.date));
     const st = calcStats(ue);
     const ye = yearEntries.filter(e=>e.uid===u.uid);
@@ -2257,7 +2301,7 @@ async function loadAdminEmployees() {
           <div class="employee-avatar">${initials(u.name)}</div>
           <div style="flex:1;min-width:0;">
             <div class="employee-name">${escHtml(u.name||'Brak nazwy')}</div>
-            <div class="employee-email">${escHtml(u.email||'')}${u.role==='admin'?' · 👑':''}${!isActive?' · 🚫 zablokowany':''}</div>
+            <div class="employee-email">${escHtml(u.email||'')}${u.role==='admin'?' · 👑':''}${!isActive?' · 🗑️ usunięty':''}</div>
           </div>
           <div class="emp-expand-arrow" id="emp-arrow-${u.uid}">▾</div>
         </div>
@@ -2292,7 +2336,7 @@ async function loadAdminEmployees() {
             </select>
             <button class="btn-role" onclick="window.changeRole('${u.uid}')">Zmień rolę</button>
           </div>
-          ${!isSelf?`<button class="btn-del-emp" onclick="toggleActive('${u.uid}',${isActive})">${isActive?'🚫 Zablokuj dostęp':'✅ Odblokuj dostęp'}</button>`:''}
+          ${!isSelf?`<button class="btn-del-emp" onclick="toggleActive('${u.uid}',${isActive})">${isActive?'🗑️ Usuń pracownika':'♻️ Przywróć pracownika'}</button>`:''}
         </div>
       </div>`;
   }).join('');
@@ -2320,14 +2364,19 @@ window.toggleActive = async function(uid, isActive){
   const name = card ? card.querySelector('.employee-name').textContent : 'pracownika';
   const willActivate = !isActive;
   const msg = willActivate
-    ? `Przywrócić dostęp dla "${name}"?`
-    : `Zablokować dostęp dla "${name}"? Nie będzie mógł się zalogować.`;
+    ? `Przywrócić pracownika "${name}"? Znów będzie widoczny na liście i będzie mógł się zalogować.`
+    : `Usunąć pracownika "${name}"? Nie będzie mógł się zalogować i znika z listy — jego wpisy zostają zachowane, możesz go przywrócić w każdej chwili.`;
   if(!confirm(msg)) return;
   try{
     await setDoc(doc(db,'users',uid),{active:willActivate},{merge:true});
-    showToast(willActivate ? '✅ Dostęp przywrócony' : '🚫 Dostęp zablokowany');
+    showToast(willActivate ? '♻️ Pracownik przywrócony' : '🗑️ Pracownik usunięty');
     loadAdminEmployees();
   }catch(err){ showToast('❌ '+err.message); }
+};
+
+window.toggleShowRemoved = function(){
+  showRemovedEmployees = !showRemovedEmployees;
+  loadAdminEmployees();
 };
 
 window.changeRole = async function(uid){
@@ -2377,7 +2426,7 @@ async function loadManageUsers() {
     <div class="user-row">
       <div>
         <div style="font-weight:600;">${escHtml(u.name||'Brak nazwy')}</div>
-        <div style="font-size:0.78rem; color:var(--text-3);">${escHtml(u.email||'')} · ${u.role==='admin'?'👑 Administrator':'👤 Pracownik'}${u.active===false?' · 🚫 zablokowany':''}</div>
+        <div style="font-size:0.78rem; color:var(--text-3);">${escHtml(u.email||'')} · ${u.role==='admin'?'👑 Administrator':'👤 Pracownik'}${u.active===false?' · 🗑️ usunięty':''}</div>
       </div>
     </div>`).join('');
 }
@@ -2607,21 +2656,74 @@ window.openEntryModal = function(id) {
       <div class="modal-row-value">${escHtml(e.note)}</div>
     </div>`:''}`;
   const editBtn = document.getElementById('modal-edit-btn');
-  if(editBtn) editBtn.style.display = (e.uid===currentUser?.uid) ? 'flex' : 'none';
+  if(editBtn) editBtn.style.display = (e.uid===currentUser?.uid || isRealAdmin) ? 'flex' : 'none';
   document.getElementById('entry-modal').classList.add('show');
 };
+
+function resetModalToViewMode(){
+  document.getElementById('modal-content').style.display = 'block';
+  document.getElementById('modal-admin-edit').style.display = 'none';
+  document.getElementById('modal-view-actions').style.display = 'flex';
+  document.getElementById('modal-edit-actions').style.display = 'none';
+}
 
 window.closeModal = function() {
   document.getElementById('entry-modal').classList.remove('show');
   currentEntryId=null;
+  resetModalToViewMode();
 };
 
 window.editCurrentEntry = function(){
   const e = allEntries.find(x=>x.id===currentEntryId);
-  if(!e || e.uid!==currentUser?.uid) return;
-  pendingEditEntry = e;
-  closeModal();
-  showPage('add-page');
+  if(!e) return;
+  if(e.uid===currentUser?.uid){
+    pendingEditEntry = e;
+    closeModal();
+    showPage('add-page');
+    return;
+  }
+  if(!isRealAdmin) return;
+  document.getElementById('ae-date').value  = e.date;
+  document.getElementById('ae-type').value  = e.type;
+  document.getElementById('ae-hours').value = e.hours || 8;
+  document.getElementById('ae-place').value = e.place || '';
+  document.getElementById('ae-note').value  = e.note || '';
+  updateAdminEditTypeSections();
+  hideErr('admin-edit-error');
+  document.getElementById('modal-content').style.display = 'none';
+  document.getElementById('modal-admin-edit').style.display = 'block';
+  document.getElementById('modal-view-actions').style.display = 'none';
+  document.getElementById('modal-edit-actions').style.display = 'flex';
+};
+
+window.updateAdminEditTypeSections = function(){
+  const isDayType = DAY_TYPES.includes(document.getElementById('ae-type').value);
+  document.getElementById('ae-hours-group').style.display = isDayType ? 'none' : 'block';
+  document.getElementById('ae-place-group').style.display = isDayType ? 'none' : 'block';
+};
+
+window.cancelAdminEntryEdit = function(){
+  resetModalToViewMode();
+};
+
+window.saveAdminEntryEdit = async function(){
+  const e = allEntries.find(x=>x.id===currentEntryId);
+  if(!e || !isRealAdmin) return;
+  const date = document.getElementById('ae-date').value;
+  const type = document.getElementById('ae-type').value;
+  const isDayType = DAY_TYPES.includes(type);
+  const place = document.getElementById('ae-place').value.trim();
+  const note  = document.getElementById('ae-note').value.trim();
+  const hours = isDayType ? 0 : (Number(document.getElementById('ae-hours').value)||0);
+  hideErr('admin-edit-error');
+  if(!date){ showErr('admin-edit-error','Wybierz datę.'); return; }
+  if(!isDayType && !place){ showErr('admin-edit-error','Podaj miejsce pracy.'); return; }
+  try{
+    await setDoc(doc(db,'entries',e.id), { uid:e.uid, date, type, hours, place: isDayType?'':place, note }, {merge:true});
+    showToast('✅ Wpis zaktualizowany');
+    closeModal();
+    if(document.querySelector('.page.active')?.id==='admin-page') loadAdminEmployees();
+  }catch(err){ showErr('admin-edit-error','Błąd: '+err.message); }
 };
 
 window.deleteCurrentEntry = async function() {
@@ -2635,6 +2737,7 @@ window.deleteCurrentEntry = async function() {
     if(active?.id==='history-page')   loadHistory();
     if(active?.id==='dashboard-page') loadDashboard();
     if(active?.id==='calendar-page')  loadCalendar();
+    if(active?.id==='admin-page')     loadAdminEmployees();
   } catch(err){ showToast('❌ Błąd: '+err.message); }
 };
 
