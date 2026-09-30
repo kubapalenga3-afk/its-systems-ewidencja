@@ -84,14 +84,19 @@ Role: tylko `employee` i `admin` (bez trzeciej roli jak w MERCKOP).
 
 ## Co zostało do zrobienia
 
-Zrobione 2026-09-20: projekt Firebase, `firebaseConfig`, `firestore.rules`, bootstrap
-pierwszego admina, deploy na Netlify (osobny od `merckop-app`, połączony z GitHub) —
-patrz "Stan na dziś" i "Zmiany" wyżej/niżej.
+Zrobione: projekt Firebase, `firebaseConfig`, `firestore.rules` (w tym admin może
+edytować/usuwać wpisy innych — dodane 2026-09-30, opublikowane i zweryfikowane w Rules
+Playground), bootstrap pierwszego admina, deploy na Netlify (osobny od `merckop-app`,
+połączony z GitHub) — patrz "Stan na dziś" i "Zmiany" wyżej/niżej.
 
 1. Ewentualnie podmienić ikony na prawdziwe logo klienta, jeśli inne niż monogram "ITS".
-2. Przetestować na żywo dodawanie/edycję wpisu i eksport CSV/PDF — jedyne większe
-   fragmenty, które w tej sesji nie były klikane na żywym Firebase (tworzenie pracownika
-   i zmiana roli na admina **były** przetestowane end-to-end, patrz "Zmiany" niżej).
+2. Przetestować na żywo na prawdziwym koncie: dodawanie/edycję wpisu, eksport CSV/PDF,
+   nowy tutorial (obie wersje — admin i pracownik), usuwanie pracownika z opcją wymazania
+   historii. W tej sesji (2026-09-30) nie było jak się zalogować do żywej apki (właściciel
+   sam zresetował hasło wcześniej, Claude go nie ma) — więc te fragmenty zweryfikowane
+   tylko: (a) czytaniem kodu, (b) testami z podstawionymi danymi bez logowania, (c) dla
+   reguł Firestore — Rules Playground z prawdziwym UID admina. Nie jest to to samo co
+   klik na żywo.
 
 ## Zmiany z 2026-09-20 (sesja na Macu, po sklonowaniu repo)
 
@@ -175,6 +180,40 @@ patrz "Stan na dziś" i "Zmiany" wyżej/niżej.
   HTML: dwa kontenery `#dashboard-employee-view` / `#dashboard-admin-view` w
   `dashboard-page`, przełączane w `loadDashboard()` na podstawie
   `isRealAdmin && !previewAsEmployee`.
+
+## Zmiany z 2026-09-30
+
+Sesja zaczęła się od odzyskania stanu po poprzedniej, która urwała się w połowie
+(zawieszona karta Chrome) — `firestore.rules` i `index.html` z 2026-09-21 były zmienione
+tylko lokalnie, nieopublikowane/niezakomitowane. Najpierw to domknięte (opublikowane
+w konsoli Firebase, zakomitowane, zweryfikowane przez Rules Playground z prawdziwym
+UID admina — patrz commit `66a8565`), potem dodane:
+
+- **Opcjonalne trwałe wymazanie historii przy usuwaniu pracownika** — `toggleActive()`
+  pyta teraz dodatkowym `confirm()` (po głównym potwierdzeniu usunięcia), czy oprócz
+  zablokowania/schowania konta trwale usunąć też wszystkie jego dokumenty w `entries`
+  (`query(collection(db,'entries'), where('uid','==',uid))` + `deleteDoc` na każdym).
+  Domyślnie (Anuluj w drugim oknie) historia zostaje zachowana jak dotychczas.
+- **Nowość: tutorial "jak korzystać z aplikacji"**, osobne kroki dla admina i pracownika:
+  - Wspólne na start: powitanie, instalacja na ekranie głównym (iPhone/Android), logowanie
+    + reset hasła.
+  - Pracownik: dodawanie wpisu, urlop/historia/kalendarz.
+  - Admin: przegląd zespołu na Pulpicie, zarządzanie zespołem (Zespół tab).
+  - Wspólne na koniec: gdzie znaleźć pomoc ponownie.
+  Pokazuje się automatycznie po pierwszym zalogowaniu (flaga `tutorialSeen` na
+  dokumencie usera w Firestore, nie localStorage — działa też po zmianie urządzenia),
+  i ręcznie przez nową ikonę „?" w topbarze Pulpitu (`openTutorial()`). Bottom-sheet
+  w stylu istniejącego modala wpisu (`#tutorial-overlay`, klasy `modal-backdrop`+`modal`),
+  z animacją „pop" ikony przy zmianie kroku i kropkami postępu. Kod: sekcja
+  „TUTORIAL" w `<script>`, stałe `TUTORIAL_COMMON_START`/`TUTORIAL_EMPLOYEE`/
+  `TUTORIAL_ADMIN`/`TUTORIAL_END`.
+- Zweryfikowane lokalnie: przejście przez wszystkie kroki tutoriala (domyślny wariant
+  pracownika, bo bez logowania `isRealAdmin` jest `false`), poprawność składni całego
+  pliku (`node --check` na wyciągniętym `<script type="module">`, dostępny w tym
+  środowisku — warto z tego korzystać w kolejnych sesjach zamiast tylko czytania kodu).
+  **Nie zweryfikowane na żywo** (brak hasła do konta admina w tej sesji): wariant
+  tutoriala dla admina, realne usunięcie historii wpisów, edycja/usuwanie cudzego wpisu
+  przez UI (tylko reguły Firestore potwierdzone przez Rules Playground, patrz wyżej).
 
 ## Ważne przy dalszej pracy
 

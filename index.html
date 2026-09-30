@@ -1003,6 +1003,24 @@ textarea.form-input {
 .modal-row-label { font-size: 0.78rem; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
 .modal-row-value { font-size: 1rem; color: var(--text-1); }
 
+/* ===== TUTORIAL ===== */
+.tutorial-modal { text-align: center; padding-top: 8px; position: relative; }
+.tutorial-skip {
+  position: absolute; top: 4px; right: 4px;
+  background: none; border: none; color: var(--text-3);
+  font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 8px 10px;
+}
+.tutorial-icon { font-size: 3.2rem; margin: 10px 0 16px; }
+.tutorial-icon.pop { animation: tutPop 0.35s ease; }
+.tutorial-title { font-size: 1.15rem; font-weight: 700; color: var(--text-1); margin-bottom: 10px; }
+.tutorial-text { font-size: 0.9rem; color: var(--text-2); line-height: 1.55; min-height: 64px; padding: 0 6px; white-space: pre-line; }
+.tutorial-dots { display: flex; justify-content: center; gap: 6px; margin: 22px 0 18px; }
+.tutorial-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--separator); transition: background 0.2s, transform 0.2s; }
+.tutorial-dot.active { background: var(--accent); transform: scale(1.3); }
+.tutorial-actions { display: flex; gap: 10px; }
+.tutorial-actions .btn { flex: 1; }
+@keyframes tutPop { from { opacity: 0; transform: scale(0.7) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
 /* ===== SPINNER ===== */
 .spinner {
   display: inline-block;
@@ -1213,6 +1231,13 @@ textarea.form-input {
       <div class="topbar-sub" id="topbar-sub">—</div>
     </div>
     <div class="topbar-actions">
+      <button class="icon-btn" onclick="openTutorial()" title="Jak korzystać z aplikacji">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M9.09 9a3 3 0 1 1 5.83 1c0 2-3 3-3 3"></path>
+          <line x1="12" y1="17" x2="12" y2="17.01"></line>
+        </svg>
+      </button>
       <button id="view-toggle-btn" class="icon-btn" style="display:none" onclick="toggleViewMode()" title="Podgląd jako pracownik">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -1676,6 +1701,24 @@ textarea.form-input {
 </div>
 
 <!-- ====================================================
+     MODAL – Tutorial (jak korzystać z aplikacji)
+     ==================================================== -->
+<div id="tutorial-overlay" class="modal-backdrop">
+  <div class="modal tutorial-modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <button class="tutorial-skip" onclick="closeTutorial()">Pomiń</button>
+    <div class="tutorial-icon" id="tut-icon">👋</div>
+    <div class="tutorial-title" id="tut-title">—</div>
+    <div class="tutorial-text" id="tut-text">—</div>
+    <div class="tutorial-dots" id="tut-dots"></div>
+    <div class="tutorial-actions">
+      <button class="btn btn-outline btn-sm" id="tut-back-btn" onclick="prevTutorialStep()">Wstecz</button>
+      <button class="btn btn-primary btn-sm" id="tut-next-btn" onclick="nextTutorialStep()">Dalej</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================
      MODAL – Szczegóły wpisu
      ==================================================== -->
 <div id="entry-modal" class="modal-backdrop" onclick="closeModal()">
@@ -1928,6 +1971,76 @@ window.toggleViewMode = function() {
   }
 };
 
+// ─────────────────────────────────────────────────────
+// TUTORIAL (jak korzystać z aplikacji)
+// ─────────────────────────────────────────────────────
+const TUTORIAL_COMMON_START = [
+  { icon:'👋', title:'Witaj w IT-S Systems', text:'Krótko pokażemy, jak korzystać z aplikacji — zajmie to minutę.' },
+  { icon:'📲', title:'Dodaj do ekranu głównego', text:'iPhone: przycisk „Udostępnij” → „Dodaj do ekranu głównego”.\nAndroid: menu „⋮” → „Zainstaluj aplikację” albo „Dodaj do ekranu głównego”.\nBędzie działać jak normalna aplikacja, bez otwierania przeglądarki.' },
+  { icon:'🔑', title:'Logowanie', text:'Logujesz się e-mailem i hasłem, które dostałeś od administratora. Zapomniałeś hasła? Kliknij „Zapomniałeś hasła?” na ekranie logowania.' }
+];
+const TUTORIAL_EMPLOYEE = [
+  { icon:'➕', title:'Dodawanie wpisu', text:'W zakładce „Dodaj” zapisujesz godziny pracy, urlop wypoczynkowy albo L4 za dany dzień.' },
+  { icon:'🏖️', title:'Urlop, historia, kalendarz', text:'Na Pulpicie widzisz, ile urlopu Ci zostało. „Historia” i „Kalendarz” pokazują Twoje dotychczasowe wpisy.' }
+];
+const TUTORIAL_ADMIN = [
+  { icon:'📊', title:'Przegląd zespołu', text:'Pulpit pokazuje, kto ma dziś zgłoszony urlop albo L4, i podsumowanie godzin całego zespołu w tym miesiącu.' },
+  { icon:'👥', title:'Zarządzanie zespołem', text:'W zakładce „Zespół” dodajesz pracowników, zmieniasz role, eksportujesz raporty CSV/PDF, a w szczegółach wpisu możesz edytować albo usunąć wpis dowolnego pracownika.' }
+];
+const TUTORIAL_END = [
+  { icon:'✅', title:'Gotowe!', text:'W każdej chwili możesz otworzyć tę pomoc ponownie ikoną „?” na Pulpicie.' }
+];
+
+let tutorialSteps = [];
+let tutorialStepIndex = 0;
+
+function buildTutorialSteps(){
+  const roleSteps = isRealAdmin ? TUTORIAL_ADMIN : TUTORIAL_EMPLOYEE;
+  return [...TUTORIAL_COMMON_START, ...roleSteps, ...TUTORIAL_END];
+}
+
+function renderTutorialStep(){
+  const step = tutorialSteps[tutorialStepIndex];
+  const iconEl = document.getElementById('tut-icon');
+  iconEl.textContent = step.icon;
+  iconEl.classList.remove('pop');
+  void iconEl.offsetWidth;
+  iconEl.classList.add('pop');
+  document.getElementById('tut-title').textContent = step.title;
+  document.getElementById('tut-text').textContent = step.text;
+  document.getElementById('tut-dots').innerHTML = tutorialSteps.map((_,i)=>
+    `<div class="tutorial-dot${i===tutorialStepIndex?' active':''}"></div>`).join('');
+  document.getElementById('tut-back-btn').style.visibility = tutorialStepIndex===0 ? 'hidden' : 'visible';
+  document.getElementById('tut-next-btn').textContent = (tutorialStepIndex===tutorialSteps.length-1) ? 'Zamknij' : 'Dalej';
+}
+
+window.openTutorial = function(){
+  tutorialSteps = buildTutorialSteps();
+  tutorialStepIndex = 0;
+  renderTutorialStep();
+  document.getElementById('tutorial-overlay').classList.add('show');
+};
+
+window.nextTutorialStep = function(){
+  if(tutorialStepIndex >= tutorialSteps.length-1){ closeTutorial(); return; }
+  tutorialStepIndex++;
+  renderTutorialStep();
+};
+
+window.prevTutorialStep = function(){
+  if(tutorialStepIndex<=0) return;
+  tutorialStepIndex--;
+  renderTutorialStep();
+};
+
+window.closeTutorial = function(){
+  document.getElementById('tutorial-overlay').classList.remove('show');
+  if(currentUser && !currentUserData?.tutorialSeen){
+    currentUserData = Object.assign({}, currentUserData, {tutorialSeen:true});
+    setDoc(doc(db,'users',currentUser.uid), {tutorialSeen:true}, {merge:true}).catch(()=>{});
+  }
+};
+
 window.showPage = function(pageId) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(pageId).classList.add('active');
@@ -2028,7 +2141,10 @@ onAuthStateChanged(auth, async user => {
     const isAdmin = currentUserData.role==='admin';
     applyNavRoles(isAdmin);
     const _lb=document.getElementById('login-btn');if(_lb){_lb.innerHTML='Zaloguj się';_lb.disabled=false;}
-    showSplash().then(()=>showPage('dashboard-page'));
+    showSplash().then(()=>{
+      showPage('dashboard-page');
+      if(!currentUserData?.tutorialSeen) openTutorial();
+    });
   } catch(err) {
     console.error('Login flow error:', err);
     const btn=document.getElementById('login-btn');
