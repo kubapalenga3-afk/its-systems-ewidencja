@@ -2363,13 +2363,30 @@ window.toggleActive = async function(uid, isActive){
   const card = document.getElementById('emp-details-'+uid)?.closest('.employee-card');
   const name = card ? card.querySelector('.employee-name').textContent : 'pracownika';
   const willActivate = !isActive;
-  const msg = willActivate
-    ? `Przywrócić pracownika "${name}"? Znów będzie widoczny na liście i będzie mógł się zalogować.`
-    : `Usunąć pracownika "${name}"? Nie będzie mógł się zalogować i znika z listy — jego wpisy zostają zachowane, możesz go przywrócić w każdej chwili.`;
-  if(!confirm(msg)) return;
+
+  if(willActivate){
+    if(!confirm(`Przywrócić pracownika "${name}"? Znów będzie widoczny na liście i będzie mógł się zalogować.`)) return;
+    try{
+      await setDoc(doc(db,'users',uid),{active:true},{merge:true});
+      showToast('♻️ Pracownik przywrócony');
+      loadAdminEmployees();
+    }catch(err){ showToast('❌ '+err.message); }
+    return;
+  }
+
+  if(!confirm(`Usunąć pracownika "${name}"? Nie będzie mógł się zalogować i znika z listy. Można go potem przywrócić.`)) return;
+  const wipeHistory = confirm(
+    `Dodatkowo trwale usunąć CAŁĄ historię wpisów czasu pracy dla "${name}"?\n\n` +
+    `OK — usuń historię (NIEODWRACALNE, nie da się przywrócić nawet po odzyskaniu konta)\n` +
+    `Anuluj — zachowaj historię (zobaczysz ją, jeśli kiedyś przywrócisz pracownika)`
+  );
   try{
-    await setDoc(doc(db,'users',uid),{active:willActivate},{merge:true});
-    showToast(willActivate ? '♻️ Pracownik przywrócony' : '🗑️ Pracownik usunięty');
+    await setDoc(doc(db,'users',uid),{active:false},{merge:true});
+    if(wipeHistory){
+      const snap = await getDocs(query(collection(db,'entries'), where('uid','==',uid)));
+      await Promise.all(snap.docs.map(d => deleteDoc(doc(db,'entries',d.id))));
+    }
+    showToast(wipeHistory ? '🗑️ Pracownik i historia wpisów usunięte' : '🗑️ Pracownik usunięty (historia zachowana)');
     loadAdminEmployees();
   }catch(err){ showToast('❌ '+err.message); }
 };
