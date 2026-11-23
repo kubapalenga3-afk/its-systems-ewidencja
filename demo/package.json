@@ -1,0 +1,14 @@
+{
+  "name": "its-ewidencja-demo",
+  "private": true,
+  "description": "Nagrywanie filmu demo aplikacji (podstawiony Firebase z przykładowymi danymi). Patrz README.md.",
+  "scripts": {
+    "record": "node record.cjs"
+  },
+  "devDependencies": {
+    "@expo-google-fonts/inter": "0.4.2",
+    "esbuild": "^0.25.0",
+    "jspdf": "2.5.2",
+    "jspdf-autotable": "3.8.4"
+  }
+}

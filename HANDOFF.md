@@ -215,6 +215,49 @@ UID admina — patrz commit `66a8565`), potem dodane:
   tutoriala dla admina, realne usunięcie historii wpisów, edycja/usuwanie cudzego wpisu
   przez UI (tylko reguły Firestore potwierdzone przez Rules Playground, patrz wyżej).
 
+## Zmiany z 2026-11-23 (sesja w chmurze: demo do prezentacji dla klienta)
+
+Cel sesji: film demo do prezentacji sprzedażowej i dopracowanie apki, żeby było dobrze widać,
+kto ma ile urlopu. Zmiany są na branchu `claude/github-connection-4luel5`. **Nie są jeszcze na
+`main`, więc nie ma ich też na Netlify**, dopóki ktoś ich nie zmerguje.
+
+- **Urlopy dobrze widoczne:**
+  - Pulpit pracownika, karta „Twój urlop”: duża liczba dni, które zostały, pasek
+    wykorzystania, „Wykorzystano X dni · X / pula”, L4 w roku. Kolory: fioletowy normalnie,
+    pomarańczowy przy ≤3 dniach, czerwony przy 0 lub przekroczeniu puli (`leaveInfo()`).
+  - Pulpit admina, nowa karta „Urlopy zespołu w RRRR”: każda osoba z paskiem, „X dni
+    zostało”, „wykorzystano X z Y” i L4, plus plakietka „dziś urlop / dziś L4”. Admini bez
+    żadnych wpisów są pomijani.
+  - Zespół → Pracownicy: na każdej karcie (bez rozwijania) roczny pasek urlopu.
+    Po „Zapisz limity urlopowe” lista się odświeża, a karta zostaje rozwinięta.
+  - Raporty CSV i PDF mają dodatkowo podsumowanie urlopu w roku (pula / wykorzystano /
+    zostało / L4).
+- **Naprawione błędy:**
+  - PDF psuł polskie znaki („Miesic”, „[roda”, „DzieD”), bo wbudowana Helvetica w jsPDF ich
+    nie ma. Teraz ładuje się font Inter z jsDelivr (`@expo-google-fonts/inter@0.4.2`,
+    `registerPdfFonts()`). Jeśli fontu nie uda się pobrać, PDF i tak się wygeneruje, tylko
+    bez polskich znaków.
+  - Godziny po polsku z przecinkiem (8,5 h, a nie 8.5) w całej apce, w CSV i w PDF (`fmtNum()`).
+    Wcześniej CSV miał „8.5” w wierszach, a Excel z polskimi ustawieniami nie traktował tego jako liczby.
+  - „X / Y dni roboczych” nie odejmowało świąt (np. 11 listopada). Teraz używa tego samego
+    kalendarza świąt co Kalendarz. Dodana też Wigilia (24.12), która jest dniem wolnym od 2025 r.
+  - Powitanie: o 14:00 było „Dobry wieczór”, a wieczorem „Dobranoc”. Teraz do 18:00 jest
+    „Dzień dobry”, potem „Dobry wieczór”.
+- **Dopieszczenia UX:**
+  - Własne okno potwierdzenia w stylu iOS (`askConfirm()`) zamiast natywnego `confirm()`,
+    które w zainstalowanej apce pokazywało adres strony. Przyciski mają czytelne nazwy, np.
+    przy usuwaniu pracownika „Zachowaj” / „Usuń historię” zamiast niejasnych OK/Anuluj.
+    Kliknięcie w tło zawsze wybiera bezpieczną opcję.
+  - Listy pracowników i eksport zbiorczy są posortowane alfabetycznie. Firestore zwraca je
+    w kolejności losowych ID.
+  - Font Inter w stosie fontów, za systemowym fontem Apple. Był już pobierany z Google
+    Fonts, ale nieużywany, a na Androidzie i Windowsie lądował Arial.
+  - Nagłówek „Listopad 2026 · X / Y dni roboczych” nad kafelkami miesiąca. Wcześniej nie
+    było jasne, że kafelki dotyczą miesiąca, a karta urlopu roku.
+- **Film demo:** folder `demo/` (patrz `demo/README.md`). Nagrywa się na tej samej apce
+  z podstawionym Firebase i przykładową firmą. Prawdziwej bazy nie dotyka. Wynik:
+  `demo/out/IT-S_demo.mp4`, nie jest commitowany, bo jest za duży do repo.
+
 ## Ważne przy dalszej pracy
 
 - To jest **osobny produkt dla klienta**, nie kolejna wersja MERCKOP — nie mieszać baz danych,

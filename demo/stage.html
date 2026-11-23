@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>IT-S demo — scena nagrania</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Scena 1920×1080 do nagrania filmu demo: telefon z aplikacją + podpisy kroków.
+   Sterowana z demo/record.cjs przez window.stage.* */
+:root {
+  --accent: #2563EB;
+  --sky: #93C5FD;
+  --ink: #0B1B45;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; }
+body {
+  font-family: 'Inter', sans-serif;
+  color: #fff;
+  background:
+    radial-gradient(900px 700px at 74% 48%, rgba(96,165,250,.45) 0%, rgba(96,165,250,0) 70%),
+    radial-gradient(700px 600px at 8% 105%, rgba(37,99,235,.35) 0%, rgba(37,99,235,0) 70%),
+    linear-gradient(135deg, #0A1640 0%, #12297A 52%, #0C1D55 100%);
+  -webkit-font-smoothing: antialiased;
+}
+.grid-bg {
+  position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background-image:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(1100px 800px at 40% 50%, #000 30%, transparent 80%);
+}
+
+/* ---------- marka ---------- */
+.brand { position: absolute; left: 150px; top: 78px; display: flex; align-items: center; gap: 20px; }
+.brand-logo { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 2px; line-height: 1; }
+.brand-logo span { color: rgba(255,255,255,.55); }
+.brand-sub { font-size: 19px; font-weight: 500; color: rgba(255,255,255,.72); border-left: 1.5px solid rgba(255,255,255,.25); padding-left: 20px; line-height: 1.2; }
+
+/* ---------- podpis kroku ---------- */
+.caption { position: absolute; left: 150px; top: 250px; width: 820px; transition: opacity .45s ease, transform .45s ease; }
+.caption.out { opacity: 0; transform: translateY(18px); }
+.chapter {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+  padding: 11px 20px 11px 16px; border-radius: 999px;
+  font-size: 17px; font-weight: 700; letter-spacing: 2.4px; text-transform: uppercase;
+}
+.chapter .dot { width: 10px; height: 10px; border-radius: 50%; background: #4ADE80; box-shadow: 0 0 0 4px rgba(74,222,128,.25); }
+.chapter.admin .dot { background: #FBBF24; box-shadow: 0 0 0 4px rgba(251,191,36,.25); }
+.stepno { margin-top: 46px; font-size: 19px; font-weight: 700; letter-spacing: 3px; color: var(--sky); text-transform: uppercase; }
+.title { margin-top: 14px; font-size: 64px; font-weight: 800; letter-spacing: -1.8px; line-height: 1.07; }
+.text { margin-top: 26px; font-size: 29px; line-height: 1.5; color: rgba(255,255,255,.82); max-width: 760px; }
+.text b { color: #fff; font-weight: 700; }
+.progress { position: absolute; left: 150px; bottom: 100px; width: 760px; display: flex; gap: 8px; transition: opacity .4s; }
+.progress i { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,.16); transition: background .4s; }
+.progress i.done { background: rgba(147,197,253,.7); }
+.progress i.cur { background: #fff; }
+
+/* ---------- telefon ---------- */
+.phone-wrap { position: absolute; left: 1188px; top: 50px; transform: scale(1.12); transform-origin: top left; transition: opacity .6s ease, transform .6s ease; }
+.phone-wrap.hidden { opacity: 0; transform: scale(1.08) translateY(30px); }
+.phone {
+  position: relative; width: 418px; height: 872px; border-radius: 66px;
+  background: linear-gradient(145deg, #2a2d35, #0d0e11 40%, #1b1d22);
+  padding: 14px;
+  box-shadow: 0 50px 90px rgba(3,10,40,.55), 0 0 0 2px rgba(255,255,255,.08) inset, 0 0 0 1px #000;
+}
+.screen { position: relative; width: 390px; height: 844px; border-radius: 52px; overflow: hidden; background: #fff; }
+.statusbar {
+  position: absolute; top: 0; left: 0; right: 0; height: 47px; z-index: 2;
+  display: flex; align-items: center; justify-content: space-between; padding: 6px 34px 0 46px;
+  font-family: -apple-system, 'Inter', sans-serif; font-weight: 600; font-size: 16px; color: #000;
+  background: rgba(255,255,255,.96);
+}
+.island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 122px; height: 35px; border-radius: 20px; background: #000; }
+.status-icons { display: flex; gap: 6px; align-items: center; }
+#app { position: absolute; top: 47px; left: 0; width: 390px; height: 763px; border: 0; display: block; background: #F2F2F7; }
+.homebar { position: absolute; bottom: 0; left: 0; right: 0; height: 34px; background: rgba(255,255,255,.96); z-index: 2; }
+.homebar::after { content: ''; position: absolute; left: 50%; bottom: 9px; transform: translateX(-50%); width: 136px; height: 5px; border-radius: 3px; background: #111; }
+
+/* ---------- wskaźnik dotyku ---------- */
+.tap {
+  position: absolute; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%;
+  background: rgba(255,255,255,.55); border: 3px solid rgba(37,99,235,.85);
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+  pointer-events: none; z-index: 50;
+  animation: tapAnim .75s ease-out forwards;
+}
+.tap::after {
+  content: ''; position: absolute; inset: -3px; border-radius: 50%;
+  border: 3px solid rgba(147,197,253,.9);
+  animation: tapRipple .75s ease-out forwards;
+}
+@keyframes tapAnim { 0% { transform: scale(.4); opacity: 0; } 18% { transform: scale(1); opacity: 1; } 60% { transform: scale(.88); opacity: 1; } 100% { transform: scale(.88); opacity: 0; } }
+@keyframes tapRipple { 0% { transform: scale(1); opacity: 0; } 30% { opacity: .9; } 100% { transform: scale(2.2); opacity: 0; } }
+
+/* ---------- plansze (intro / rozdziały / zakończenie) ---------- */
+.board {
+  position: absolute; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  background:
+    radial-gradient(900px 700px at 50% 45%, rgba(96,165,250,.38) 0%, rgba(96,165,250,0) 70%),
+    linear-gradient(135deg, #0A1640 0%, #12297A 52%, #0C1D55 100%);
+  opacity: 0; pointer-events: none; transition: opacity .7s ease;
+}
+.board.show { opacity: 1; }
+.board .b-kicker { font-size: 22px; font-weight: 700; letter-spacing: 5px; text-transform: uppercase; color: var(--sky); }
+.board .b-logo { font-family: 'Bebas Neue', sans-serif; font-size: 190px; letter-spacing: 6px; line-height: .95; margin-top: 10px; }
+.board .b-logo span { color: rgba(255,255,255,.55); }
+.board .b-line { width: 0; height: 3px; margin: 26px auto 26px; border-radius: 2px; background: linear-gradient(90deg, transparent, #fff, transparent); transition: width 1s ease .3s; }
+.board.show .b-line { width: 420px; }
+.board .b-title { font-size: 66px; font-weight: 800; letter-spacing: -1.6px; line-height: 1.1; }
+.board .b-text { margin-top: 22px; font-size: 30px; color: rgba(255,255,255,.8); line-height: 1.5; max-width: 1200px; }
+.board .b-items { margin-top: 44px; display: flex; gap: 22px; justify-content: center; flex-wrap: wrap; max-width: 1000px; }
+.board .b-items div {
+  background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.18);
+  border-radius: 18px; padding: 16px 24px; font-size: 24px; font-weight: 600;
+}
+.board > * { transform: translateY(14px); transition: transform .8s ease; }
+.board.show > * { transform: translateY(0); }
+
+/* ---------- podgląd wygenerowanych plików (PDF / CSV) ---------- */
+.brand { transition: opacity .4s ease; }
+body.doc-mode .brand { opacity: 0; }
+.doc-panel {
+  position: absolute; left: 130px; top: 64px; width: 940px; height: 960px; z-index: 40;
+  opacity: 0; transform: translateX(-40px); transition: opacity .5s ease, transform .5s ease; pointer-events: none;
+}
+.doc-panel.show { opacity: 1; transform: none; }
+.doc-label { display: inline-flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 700; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); padding: 10px 20px; border-radius: 999px; }
+.doc-file { margin-top: 12px; font-size: 18px; color: rgba(255,255,255,.65); font-weight: 500; }
+.paper { margin-top: 22px; background: #fff; border-radius: 8px; box-shadow: 0 40px 80px rgba(0,0,0,.45); overflow: hidden; }
+.paper img { display: block; width: 100%; }
+.pdf-paper { width: 900px; }
+.pdf-paper img { max-height: 830px; object-fit: contain; object-position: top left; }
+.sheet { width: 900px; color: #1f2937; font-family: 'Inter', sans-serif; }
+.sheet-bar { background: #1D6F42; color: #fff; padding: 10px 16px; font-size: 16px; font-weight: 600; display: flex; gap: 10px; align-items: center; }
+.sheet table { border-collapse: collapse; width: 100%; font-size: 15px; }
+.sheet td, .sheet th { border: 1px solid #D1D5DB; padding: 6px 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px; text-align: left; }
+.sheet th { background: #F3F4F6; color: #6B7280; font-weight: 600; font-size: 13px; text-align: center; }
+.sheet td.rowno { background: #F3F4F6; color: #6B7280; text-align: center; width: 38px; font-size: 13px; }
+.sheet tr.head td:not(.rowno) { font-weight: 700; background: #EFF6FF; }
+.sheet tr.strong td:not(.rowno) { font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="brand">
+  <div class="brand-logo">IT<span>-</span>S</div>
+  <div class="brand-sub">Ewidencja czasu pracy<br><span style="opacity:.75">demo aplikacji</span></div>
+</div>
+
+<div class="caption out" id="caption">
+  <div class="chapter" id="cap-chapter"><span class="dot"></span><span id="cap-chapter-text">Widok pracownika</span></div>
+  <div class="stepno" id="cap-stepno">Krok 1 z 10</div>
+  <div class="title" id="cap-title">—</div>
+  <div class="text" id="cap-text">—</div>
+</div>
+<div class="progress" id="progress"></div>
+
+<div class="doc-panel" id="doc-panel">
+  <div class="doc-label" id="doc-label">📄 Raport PDF</div>
+  <div class="doc-file" id="doc-file"></div>
+  <div id="doc-body"></div>
+</div>
+
+<div class="phone-wrap hidden" id="phone-wrap">
+  <div class="phone">
+    <div class="screen">
+      <div class="statusbar">
+        <span>9:14</span>
+        <div class="island"></div>
+        <div class="status-icons">
+          <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#000"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#000"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#000"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#000"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 11.5l2.4-2.9a3.4 3.4 0 0 0-4.8 0L8 11.5zM3.9 6.6a5.8 5.8 0 0 1 8.2 0l1.5-1.8a8.2 8.2 0 0 0-11.2 0l1.5 1.8zM.8 3a10.5 10.5 0 0 1 14.4 0L16 2a12 12 0 0 0-16 0l.8 1z" fill="#000"/></svg>
+          <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#000" opacity=".4"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#000"/><path d="M25 4.5v4a2 2 0 0 0 0-4z" fill="#000" opacity=".45"/></svg>
+        </div>
+      </div>
+      <iframe id="app" src="about:blank" title="Aplikacja"></iframe>
+      <div class="homebar"></div>
+    </div>
+  </div>
+</div>
+
+<div class="board" id="board"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+window.stage = {
+  loadApp(url) {
+    return new Promise(res => { $('app').onload = () => res(); $('app').src = url; });
+  },
+  showPhone(show = true) { $('phone-wrap').classList.toggle('hidden', !show); },
+
+  async caption({ chapter, admin = false, step, total, title, text }) {
+    const c = $('caption');
+    if (!c.classList.contains('out')) { c.classList.add('out'); await wait(450); }
+    $('cap-chapter').classList.toggle('admin', admin);
+    $('cap-chapter-text').textContent = chapter;
+    $('cap-stepno').textContent = `Krok ${step} z ${total}`;
+    $('cap-title').innerHTML = title;
+    $('cap-text').innerHTML = text;
+    $('progress').innerHTML = Array.from({ length: total }, (_, i) =>
+      `<i class="${i + 1 < step ? 'done' : i + 1 === step ? 'cur' : ''}"></i>`).join('');
+    $('progress').style.opacity = 1;
+    c.classList.remove('out');
+  },
+  hideCaption() { $('caption').classList.add('out'); $('progress').style.opacity = 0; },
+
+  tap(x, y) {
+    const t = document.createElement('div');
+    t.className = 'tap';
+    t.style.left = x + 'px';
+    t.style.top = y + 'px';
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 800);
+  },
+
+  board(html) {
+    const b = $('board');
+    if (html === null) { b.classList.remove('show'); return; }
+    b.innerHTML = html;
+    void b.offsetWidth;
+    b.classList.add('show');
+  },
+
+  showPdf({ src, label, file }) {
+    $('doc-label').innerHTML = label;
+    $('doc-file').textContent = file;
+    $('doc-body').innerHTML = `<div class="paper pdf-paper"><img src="${src}"></div>`;
+    document.body.classList.add('doc-mode');
+    $('doc-panel').classList.add('show');
+  },
+  showCsv({ rows, label, file }) {
+    $('doc-label').innerHTML = label;
+    $('doc-file').textContent = file;
+    const cols = Math.max(...rows.map(r => r.length));
+    const letters = Array.from({ length: cols }, (_, i) => String.fromCharCode(65 + i));
+    const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    const body = rows.map((r, i) => {
+      const cls = r[0] === 'Data' ? 'head' : (r.length === 1 && r[0] ? 'strong' : '');
+      return `<tr class="${cls}"><td class="rowno">${i + 1}</td>${letters.map((_, j) => `<td>${esc(r[j] ?? '')}</td>`).join('')}</tr>`;
+    }).join('');
+    $('doc-body').innerHTML = `<div class="paper sheet"><div class="sheet-bar">▦ ${esc(file)}</div>
+      <table><tr><th></th>${letters.map(l => `<th>${l}</th>`).join('')}</tr>${body}</table></div>`;
+    document.body.classList.add('doc-mode');
+    $('doc-panel').classList.add('show');
+  },
+  hideDoc() { $('doc-panel').classList.remove('show'); document.body.classList.remove('doc-mode'); }
+};
+</script>
+</body>
+</html>

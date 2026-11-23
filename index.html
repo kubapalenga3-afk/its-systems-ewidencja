@@ -66,7 +66,7 @@
 /* ===== BASE ===== */
 html, body {
   height: 100%;
-  font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Helvetica Neue', Arial, sans-serif;
   background: var(--bg);
   color: var(--text-1);
   font-size: 16px;
@@ -551,7 +551,41 @@ textarea.form-input {
 .pool-row-label { font-size: 0.85rem; font-weight: 600; color: var(--text-2); }
 .pool-row-bar { height: 8px; border-radius: 4px; background: var(--bg); overflow: hidden; }
 .pool-row-fill { height: 100%; border-radius: 4px; background: var(--vacation); transition: width 0.5s ease; }
+.pool-row-fill.low   { background: var(--warning); }
+.pool-row-fill.empty { background: var(--danger); }
 .pool-row-val { font-size: 0.78rem; color: var(--text-3); font-weight: 600; }
+
+.leave-summary { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.leave-big { font-size: 2.6rem; font-weight: 800; color: var(--vacation); letter-spacing: -1.5px; line-height: 1; }
+.leave-big small { font-size: 1rem; font-weight: 700; letter-spacing: 0; margin-left: 6px; }
+.leave-big.low   { color: var(--warning); }
+.leave-big.empty { color: var(--danger); }
+.leave-big-label { font-size: 0.82rem; color: var(--text-2); font-weight: 600; margin-top: 6px; }
+.leave-pool-chip { background: var(--vacation-light); color: var(--vacation); font-size: 0.78rem; font-weight: 700; padding: 6px 12px; border-radius: 20px; white-space: nowrap; }
+.leave-card-bar { height: 10px; border-radius: 5px; }
+.leave-bar-legend { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-3); font-weight: 600; margin-top: 6px; }
+.leave-sick-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-2); font-weight: 600; margin-top: 14px; padding-top: 12px; border-top: 0.5px solid var(--separator); }
+.leave-sick-row strong { color: var(--text-1); }
+
+.month-stats-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 4px 4px 10px; }
+.month-stats-head .workdays-hint { margin: 0; }
+
+/* Urlopy zespołu (Pulpit admina) */
+.tl-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 0.5px solid var(--separator); }
+.tl-row:first-child { padding-top: 2px; }
+.tl-row:last-child { border-bottom: none; padding-bottom: 0; }
+.tl-avatar { width: 38px; height: 38px; font-size: 0.85rem; }
+.tl-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.tl-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.tl-name { font-weight: 700; font-size: 0.9rem; letter-spacing: -0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tl-left { font-size: 0.78rem; color: var(--text-3); font-weight: 600; white-space: nowrap; }
+.tl-left b { font-size: 1.05rem; color: var(--vacation); font-weight: 800; }
+.tl-left b.low   { color: var(--warning); }
+.tl-left b.empty { color: var(--danger); }
+.tl-sub { font-size: 0.72rem; color: var(--text-3); font-weight: 500; }
+.tl-pill { display: inline-block; font-size: 0.66rem; font-weight: 700; padding: 1px 7px; border-radius: 10px; margin-right: 6px; vertical-align: 1px; }
+.tl-pill.vacation { background: var(--vacation-light); color: var(--vacation); }
+.tl-pill.sick     { background: var(--sick-light); color: var(--sick); }
 
 /* ===== STATS GRID ===== */
 .stats-grid {
@@ -880,6 +914,13 @@ textarea.form-input {
 
 .emp-stat-label { font-size: 0.7rem; color: var(--text-3); margin-top: 2px; }
 
+.emp-leave { margin-top: 12px; }
+.emp-leave-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.78rem; color: var(--text-2); font-weight: 600; margin-bottom: 6px; gap: 8px; }
+.emp-leave-top span:last-child { color: var(--text-3); white-space: nowrap; }
+.emp-leave-top b { color: var(--vacation); font-size: 0.95rem; font-weight: 800; }
+.emp-leave-top b.low   { color: var(--warning); }
+.emp-leave-top b.empty { color: var(--danger); }
+
 .employee-details { margin-top: 4px; }
 
 /* ===== POOL EDIT (admin) ===== */
@@ -900,7 +941,8 @@ textarea.form-input {
 
 .tab-btn {
   flex: 1;
-  padding: 9px;
+  padding: 9px 4px;
+  white-space: nowrap;
   border: none;
   background: none;
   border-radius: 8px;
@@ -1020,6 +1062,35 @@ textarea.form-input {
 .tutorial-actions { display: flex; gap: 10px; }
 .tutorial-actions .btn { flex: 1; }
 @keyframes tutPop { from { opacity: 0; transform: scale(0.7) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+/* ===== POTWIERDZENIE (zamiast natywnego confirm) ===== */
+.confirm-backdrop {
+  position: fixed; inset: 0; z-index: 3000;
+  background: rgba(0,0,0,0.38);
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+  display: none; align-items: center; justify-content: center; padding: 24px;
+}
+.confirm-backdrop.show { display: flex; }
+.confirm-box {
+  width: 100%; max-width: 300px;
+  background: rgba(255,255,255,0.97);
+  border-radius: 16px; overflow: hidden; text-align: center;
+  box-shadow: var(--shadow-lg);
+  animation: confirmIn 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+@keyframes confirmIn { from { opacity: 0; transform: scale(1.12); } to { opacity: 1; transform: scale(1); } }
+.confirm-title { font-size: 1.02rem; font-weight: 700; color: var(--text-1); padding: 20px 18px 0; letter-spacing: -0.2px; }
+.confirm-text  { font-size: 0.84rem; color: var(--text-2); line-height: 1.45; padding: 6px 18px 18px; white-space: pre-line; }
+.confirm-text:empty { padding-bottom: 12px; }
+.confirm-actions { display: flex; border-top: 0.5px solid var(--separator); }
+.confirm-btn {
+  flex: 1; background: none; border: none; padding: 14px 8px;
+  font-size: 1rem; font-family: inherit; color: var(--accent); cursor: pointer;
+}
+.confirm-btn + .confirm-btn { border-left: 0.5px solid var(--separator); }
+.confirm-btn:active { background: var(--bg); }
+.confirm-btn.confirm-ok { font-weight: 700; }
+.confirm-btn.confirm-ok.danger { color: var(--danger); }
 
 /* ===== SPINNER ===== */
 .spinner {
@@ -1261,19 +1332,23 @@ textarea.form-input {
     </div>
 
     <div id="dashboard-employee-view">
-      <div class="workdays-hint" id="workdays-hint"></div>
-
       <div class="card" id="leave-card" style="display:none;">
         <div class="card-title" id="leave-card-title">Twój urlop</div>
-        <div class="pool-row">
-          <div class="pool-row-label">🏖️ Urlop wypoczynkowy</div>
-          <div class="pool-row-bar"><div class="pool-row-fill" id="pool-fill-vac"></div></div>
-          <div class="pool-row-val" id="pool-val-vac">—</div>
+        <div class="leave-summary">
+          <div>
+            <div class="leave-big" id="leave-big"><span id="leave-left-num">—</span><small id="leave-left-unit">dni</small></div>
+            <div class="leave-big-label" id="leave-left-label">🏖️ urlopu do wykorzystania</div>
+          </div>
+          <div class="leave-pool-chip" id="leave-pool-chip">pula — dni</div>
         </div>
-        <div class="pool-row">
-          <div class="pool-row-label">🤒 Zwolnienia L4</div>
-          <div class="pool-row-val" id="pool-val-sick">—</div>
-        </div>
+        <div class="pool-row-bar leave-card-bar"><div class="pool-row-fill" id="pool-fill-vac"></div></div>
+        <div class="leave-bar-legend"><span id="pool-val-vac">—</span><span id="pool-val-left">—</span></div>
+        <div class="leave-sick-row"><span>🤒 Zwolnienia L4 w tym roku</span><strong id="pool-val-sick">—</strong></div>
+      </div>
+
+      <div class="month-stats-head">
+        <div class="section-title" id="month-stats-title">Ten miesiąc</div>
+        <div class="workdays-hint" id="workdays-hint"></div>
       </div>
 
       <div class="stats-grid">
@@ -1319,22 +1394,31 @@ textarea.form-input {
         <div id="admin-today-status"></div>
       </div>
 
+      <div class="month-stats-head">
+        <div class="section-title" id="ov-month-title">Ten miesiąc</div>
+        <div class="workdays-hint">👥 cały zespół</div>
+      </div>
       <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
         <div class="stat-card">
           <div class="stat-icon">⏱</div>
           <div class="stat-value" id="ov-stat-hours">0</div>
-          <div class="stat-label">godzin w tym mies.</div>
+          <div class="stat-label">godzin pracy</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">🏖️</div>
           <div class="stat-value" id="ov-stat-vacation">0</div>
-          <div class="stat-label">dni urlopu w mies.</div>
+          <div class="stat-label">dni urlopu</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">🤒</div>
           <div class="stat-value" id="ov-stat-sick">0</div>
-          <div class="stat-label">dni L4 w mies.</div>
+          <div class="stat-label">dni L4</div>
         </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" id="team-leave-title">Urlopy zespołu</div>
+        <div id="team-leave-list"></div>
       </div>
 
       <button class="quick-add-btn" onclick="showPage('admin-page')">
@@ -1719,6 +1803,20 @@ textarea.form-input {
 </div>
 
 <!-- ====================================================
+     POTWIERDZENIE (zamiast natywnego confirm())
+     ==================================================== -->
+<div id="confirm-overlay" class="confirm-backdrop">
+  <div class="confirm-box" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" onclick="event.stopPropagation()">
+    <div class="confirm-title" id="confirm-title"></div>
+    <div class="confirm-text" id="confirm-text"></div>
+    <div class="confirm-actions">
+      <button class="confirm-btn" id="confirm-cancel">Anuluj</button>
+      <button class="confirm-btn confirm-ok" id="confirm-ok">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================
      MODAL – Szczegóły wpisu
      ==================================================== -->
 <div id="entry-modal" class="modal-backdrop" onclick="closeModal()">
@@ -1841,6 +1939,31 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
+// Okno potwierdzenia w stylu iOS zamiast natywnego confirm() (które w zainstalowanej
+// apce pokazuje adres strony i nie pozwala nazwać przycisków). Zwraca Promise<boolean>.
+// Kliknięcie w tło = „Anuluj”, więc domyślnie zawsze wybierana jest bezpieczniejsza opcja.
+function askConfirm({ title, text = '', ok = 'OK', cancel = 'Anuluj', danger = false }) {
+  return new Promise(resolve => {
+    const overlay   = document.getElementById('confirm-overlay');
+    const okBtn     = document.getElementById('confirm-ok');
+    const cancelBtn = document.getElementById('confirm-cancel');
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-text').textContent  = text;
+    okBtn.textContent     = ok;
+    cancelBtn.textContent = cancel;
+    okBtn.classList.toggle('danger', danger);
+    const done = value => {
+      overlay.classList.remove('show');
+      okBtn.onclick = cancelBtn.onclick = overlay.onclick = null;
+      resolve(value);
+    };
+    okBtn.onclick     = () => done(true);
+    cancelBtn.onclick = () => done(false);
+    overlay.onclick   = () => done(false);
+    overlay.classList.add('show');
+  });
+}
+
 function showErr(id, msg) { const e = document.getElementById(id); e.textContent=msg; e.classList.add('show'); }
 function hideErr(id)      { document.getElementById(id).classList.remove('show'); }
 
@@ -1863,7 +1986,22 @@ function monthLabel(date) {
 
 function greeting() {
   const h = new Date().getHours();
-  return h < 12 ? 'Dzień dobry,' : h < 18 ? 'Dobry wieczór,' : 'Dobranoc,';
+  return h < 18 ? 'Dzień dobry,' : 'Dobry wieczór,';
+}
+
+function dniWord(n) { return n === 1 ? 'dzień' : 'dni'; }
+
+// Firestore zwraca dokumenty w kolejności losowych ID — na listach sortujemy alfabetycznie.
+function sortUsersByName(users) {
+  return users.sort((a,b)=>(a.name||a.email||'').localeCompare(b.name||b.email||'', 'pl'));
+}
+
+// Stan puli urlopowej: ile zostało i jak bardzo jest wyczerpana (kolor paska/liczby).
+function leaveInfo(pool, used) {
+  const left = pool - used;
+  const pct  = pool ? Math.min(100, used / pool * 100) : (used ? 100 : 0);
+  const level = left <= 0 ? 'empty' : left <= 3 ? 'low' : '';
+  return { pool, used, left, pct, level };
 }
 
 function initials(name) {
@@ -1871,6 +2009,9 @@ function initials(name) {
 }
 
 function round1(n){ return Math.round(n*10)/10; }
+
+// Liczby po polsku: przecinek dziesiętny (8,5 h, a nie 8.5 h) — w apce, CSV i PDF.
+function fmtNum(n){ return String(round1(Number(n)||0)).replace('.', ','); }
 
 function escHtml(v){
   return String(v==null?'':v)
@@ -1891,10 +2032,11 @@ function calcStats(entries) {
 
 function countWorkingDaysInMonth(year, month) {
   const daysInMonth = new Date(year, month+1, 0).getDate();
+  const hol = plHolidayKeys(year);
   let count = 0;
   for(let d=1; d<=daysInMonth; d++){
     const dow = new Date(year, month, d).getDay();
-    if(dow!==0 && dow!==6) count++;
+    if(dow!==0 && dow!==6 && !hol.has(year+'-'+(month+1)+'-'+d)) count++;
   }
   return count;
 }
@@ -1910,7 +2052,7 @@ function computeLeaveUsage(entries){
 
 function renderEntry(e) {
   const cls = e.type||'work';
-  const hrs = DAY_TYPES.includes(cls) ? '1d' : `${e.hours}h`;
+  const hrs = DAY_TYPES.includes(cls) ? '1d' : `${fmtNum(e.hours)}h`;
   return `
     <div class="entry-item" onclick="openEntryModal('${e.id}')">
       <div class="entry-icon ${cls}">${TYPE_ICONS[cls]||'📋'}</div>
@@ -1926,7 +2068,7 @@ function renderEntry(e) {
 
 function renderEntryReadonly(e) {
   const cls = e.type||'work';
-  const hrs = DAY_TYPES.includes(cls) ? '1d' : `${e.hours}h`;
+  const hrs = DAY_TYPES.includes(cls) ? '1d' : `${fmtNum(e.hours)}h`;
   return `
     <div class="entry-item" onclick="openEntryModal('${e.id}')">
       <div class="entry-icon ${cls}">${TYPE_ICONS[cls]||'📋'}</div>
@@ -2089,7 +2231,7 @@ window.doLogin = async function() {
 };
 
 window.doLogout = async function() {
-  if(!confirm('Wylogować się?')) return;
+  if(!await askConfirm({ title: 'Wylogować się?', ok: 'Wyloguj' })) return;
   await signOut(auth);
 };
 
@@ -2197,21 +2339,33 @@ async function loadDashboard() {
   allEntries = monthEntries;
 
   const s = calcStats(monthEntries);
-  document.getElementById('stat-hours').textContent    = s.hours;
+  document.getElementById('stat-hours').textContent    = fmtNum(s.hours);
   document.getElementById('stat-days').textContent     = s.days;
   document.getElementById('stat-vacation').textContent = s.vacation;
   document.getElementById('stat-sick').textContent     = s.sick;
 
   const totalWorkDays = countWorkingDaysInMonth(now.getFullYear(), now.getMonth());
-  document.getElementById('workdays-hint').textContent = `📅 ${s.days} / ${totalWorkDays} dni roboczych w tym miesiącu`;
+  const mLabel = monthLabel(now);
+  document.getElementById('month-stats-title').textContent = mLabel.charAt(0).toUpperCase()+mLabel.slice(1);
+  document.getElementById('workdays-hint').textContent = `📅 ${s.days} / ${totalWorkDays} dni roboczych`;
 
   const lu = computeLeaveUsage(yearEntries);
-  const pv = currentUserData?.poolVacation ?? 26;
+  const li = leaveInfo(currentUserData?.poolVacation ?? 26, lu.usedVacation);
   document.getElementById('leave-card').style.display = 'block';
   document.getElementById('leave-card-title').textContent = 'Twój urlop w '+now.getFullYear();
-  document.getElementById('pool-val-vac').textContent = `${lu.usedVacation} / ${pv} dni`;
-  document.getElementById('pool-fill-vac').style.width = (pv? Math.min(100, lu.usedVacation/pv*100):0)+'%';
-  document.getElementById('pool-val-sick').textContent = `${lu.usedSick} dni w tym roku`;
+  document.getElementById('leave-big').className = 'leave-big '+li.level;
+  document.getElementById('leave-left-num').textContent  = Math.max(0, li.left);
+  document.getElementById('leave-left-unit').textContent = dniWord(Math.max(0, li.left));
+  document.getElementById('leave-left-label').textContent = li.left < 0
+    ? `⚠️ pula przekroczona o ${-li.left} ${dniWord(-li.left)}`
+    : '🏖️ urlopu do wykorzystania';
+  document.getElementById('leave-pool-chip').textContent = `pula ${li.pool} ${dniWord(li.pool)}`;
+  const fill = document.getElementById('pool-fill-vac');
+  fill.className = 'pool-row-fill '+li.level;
+  fill.style.width = li.pct+'%';
+  document.getElementById('pool-val-vac').textContent  = `Wykorzystano ${li.used} ${dniWord(li.used)}`;
+  document.getElementById('pool-val-left').textContent = `${li.used} / ${li.pool}`;
+  document.getElementById('pool-val-sick').textContent = `${lu.usedSick} ${dniWord(lu.usedSick)}`;
 
   const recent = [...monthEntries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
   document.getElementById('recent-entries').innerHTML = recent.length
@@ -2222,12 +2376,14 @@ async function loadDashboard() {
 async function loadDashboardAdminOverview(now) {
   now = now || new Date();
   const today = todayStr();
-  const usersSnap = await getDocs(collection(db,'users'));
+  const yStart = new Date(now.getFullYear(), 0, 1), yEnd = new Date(now.getFullYear(), 11, 31);
+  const [usersSnap, yearEntries] = await Promise.all([
+    getDocs(collection(db,'users')), fetchAllEntries(yStart, yEnd)
+  ]);
   const users = usersSnap.docs.map(d=>({uid:d.id,...d.data()})).filter(u=>u.active!==false);
 
-  const mStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const mEnd   = new Date(now.getFullYear(), now.getMonth()+1, 0);
-  const monthEntries = await fetchAllEntries(mStart, mEnd);
+  const ym = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  const monthEntries = yearEntries.filter(e=>e.date.startsWith(ym));
   const todayEntries = monthEntries.filter(e=>e.date===today);
 
   const absentToday = users
@@ -2252,9 +2408,43 @@ async function loadDashboardAdminOverview(now) {
     else if(e.type==='sick')     sumSick++;
   });
 
-  document.getElementById('ov-stat-hours').textContent     = round1(sumHours);
+  const ovLabel = monthLabel(now);
+  document.getElementById('ov-month-title').textContent    = ovLabel.charAt(0).toUpperCase()+ovLabel.slice(1);
+  document.getElementById('ov-stat-hours').textContent     = fmtNum(sumHours);
   document.getElementById('ov-stat-vacation').textContent  = sumVac;
   document.getElementById('ov-stat-sick').textContent      = sumSick;
+
+  // Urlopy zespołu: kto ile wykorzystał i ile mu zostało w tym roku.
+  // Administratorzy bez żadnych wpisów (szef, który nie loguje czasu) są pomijani.
+  const teamLeave = users
+    .map(u => ({ u, ye: yearEntries.filter(e=>e.uid===u.uid) }))
+    .filter(({u, ye}) => u.role!=='admin' || ye.length)
+    .sort((a,b) => (a.u.name||a.u.email||'').localeCompare(b.u.name||b.u.email||'', 'pl'));
+  document.getElementById('team-leave-title').textContent = 'Urlopy zespołu w '+now.getFullYear();
+  document.getElementById('team-leave-list').innerHTML = teamLeave.length
+    ? teamLeave.map(({u, ye})=>{
+        const lu = computeLeaveUsage(ye);
+        const li = leaveInfo(u.poolVacation ?? 26, lu.usedVacation);
+        const todayAbs = absentToday.find(x=>x.u.uid===u.uid);
+        const pill = todayAbs
+          ? `<span class="tl-pill ${todayAbs.e.type}">${todayAbs.e.type==='sick'?'dziś L4':'dziś urlop'}</span>` : '';
+        const leftTxt = li.left < 0
+          ? `<b class="empty">+${-li.left}</b> ponad pulę`
+          : `<b class="${li.level}">${li.left}</b> ${dniWord(li.left)} zostało`;
+        return `
+        <div class="tl-row">
+          <div class="employee-avatar tl-avatar">${initials(u.name)}</div>
+          <div class="tl-main">
+            <div class="tl-top">
+              <span class="tl-name">${escHtml(u.name||u.email||'')}</span>
+              <span class="tl-left">${leftTxt}</span>
+            </div>
+            <div class="pool-row-bar"><div class="pool-row-fill ${li.level}" style="width:${li.pct}%"></div></div>
+            <div class="tl-sub">${pill}wykorzystano ${li.used} z ${li.pool} ${dniWord(li.pool)}${lu.usedSick?` · L4: ${lu.usedSick} ${dniWord(lu.usedSick)}`:''}</div>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div style="color:var(--text-3);font-size:0.9rem;padding:4px 2px;">Brak pracowników.</div>';
 }
 
 async function loadHistory() {
@@ -2265,7 +2455,7 @@ async function loadHistory() {
   const entries = await fetchEntries(currentUser.uid, start, end);
   allEntries = entries;
   const s = calcStats(entries);
-  document.getElementById('h-stat-hours').textContent    = s.hours;
+  document.getElementById('h-stat-hours').textContent    = fmtNum(s.hours);
   document.getElementById('h-stat-days').textContent     = s.days;
   document.getElementById('h-stat-vacation').textContent = s.vacation;
   document.getElementById('h-stat-sick').textContent     = s.sick;
@@ -2297,6 +2487,7 @@ function plHolidayKeys(y){
   const e=easterDate(y);
   const em=new Date(e); em.setDate(e.getDate()+1);  set.add(dk(em));
   const cc=new Date(e); cc.setDate(e.getDate()+60); set.add(dk(cc));
+  if(y>=2025) set.add(dk(new Date(y,11,24)));   // Wigilia — dzień wolny od 2025 r.
   return set;
 }
 
@@ -2337,7 +2528,7 @@ async function loadCalendar() {
     if(work){
       const h = ents.reduce(function(s,e){ return s + (Number(e.hours)||0); }, 0);
       hours += h; cWork++;
-      cls='cal-work'; tip=round1(h)+'h'; hLabel='<span class="cal-h">'+round1(h)+'</span>';
+      cls='cal-work'; tip=fmtNum(h)+'h'; hLabel='<span class="cal-h">'+fmtNum(h)+'</span>';
     } else if(vac){
       cls='cal-vac';  tip='urlop wypoczynkowy';
     } else if(sick){
@@ -2362,7 +2553,7 @@ async function loadCalendar() {
   document.getElementById('cal-sum').innerHTML =
       '<div class="cal-sum-item"><b style="color:#16A34A">'+cWork+'</b><span>dni w pracy</span></div>'
     + '<div class="cal-sum-item"><b style="color:'+(cMiss?'#DC2626':'var(--text-1)')+'">'+cMiss+'</b><span>braków</span></div>'
-    + '<div class="cal-sum-item"><b>'+round1(hours)+'</b><span>godzin</span></div>';
+    + '<div class="cal-sum-item"><b>'+fmtNum(hours)+'</b><span>godzin</span></div>';
 }
 
 window.changeCalMonth = function(d){
@@ -2390,7 +2581,7 @@ async function loadAdminEmployees() {
     getDocs(collection(db,'users')), fetchAllEntries(start,end), fetchAllEntries(yStart,yEnd)
   ]);
   allEntries = monthEntries;
-  const allUsers = usersSnap.docs.map(d=>({uid:d.id,...d.data()}));
+  const allUsers = sortUsersByName(usersSnap.docs.map(d=>({uid:d.id,...d.data()})));
   const removedCount = allUsers.filter(u=>u.active===false).length;
   const users = showRemovedEmployees ? allUsers : allUsers.filter(u=>u.active!==false);
   const c = document.getElementById('admin-employees-list');
@@ -2409,6 +2600,7 @@ async function loadAdminEmployees() {
     const ye = yearEntries.filter(e=>e.uid===u.uid);
     const lu = computeLeaveUsage(ye);
     const pv = u.poolVacation ?? 26;
+    const li = leaveInfo(pv, lu.usedVacation);
     const isActive = u.active !== false;
     const isSelf = u.uid===currentUser.uid;
     return `
@@ -2422,9 +2614,18 @@ async function loadAdminEmployees() {
           <div class="emp-expand-arrow" id="emp-arrow-${u.uid}">▾</div>
         </div>
         <div class="employee-stats">
-          <div class="emp-stat"><div class="emp-stat-value">${st.hours}</div><div class="emp-stat-label">godzin</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">${fmtNum(st.hours)}</div><div class="emp-stat-label">godzin</div></div>
           <div class="emp-stat"><div class="emp-stat-value">${st.days}</div><div class="emp-stat-label">dni pracy</div></div>
-          <div class="emp-stat"><div class="emp-stat-value">${st.vacation}</div><div class="emp-stat-label">urlop</div></div>
+          <div class="emp-stat"><div class="emp-stat-value">${st.vacation}</div><div class="emp-stat-label">dni urlopu</div></div>
+        </div>
+        <div class="emp-leave">
+          <div class="emp-leave-top">
+            <span>🏖️ Urlop ${now.getFullYear()}</span>
+            <span>${li.left<0
+              ? `<b class="empty">+${-li.left}</b> ponad pulę`
+              : `<b class="${li.level}">${li.left}</b> ${dniWord(li.left)} zostało`} · ${li.used}/${li.pool}</span>
+          </div>
+          <div class="pool-row-bar"><div class="pool-row-fill ${li.level}" style="width:${li.pct}%"></div></div>
         </div>
         <div class="employee-details" id="emp-details-${u.uid}" style="display:none;">
           <div class="divider"></div>
@@ -2472,6 +2673,9 @@ window.savePools = async function(uid){
   try{
     await setDoc(doc(db,'users',uid),{poolVacation:pv},{merge:true});
     showToast('✅ Limity urlopowe zapisane');
+    // Odśwież paski urlopu na liście i zostaw kartę tego pracownika rozwiniętą.
+    await loadAdminEmployees();
+    toggleEmpDetails(uid);
   }catch(err){ showToast('❌ '+err.message); }
 };
 
@@ -2481,7 +2685,11 @@ window.toggleActive = async function(uid, isActive){
   const willActivate = !isActive;
 
   if(willActivate){
-    if(!confirm(`Przywrócić pracownika "${name}"? Znów będzie widoczny na liście i będzie mógł się zalogować.`)) return;
+    if(!await askConfirm({
+      title: 'Przywrócić pracownika?',
+      text: `„${name}” znów będzie widoczny na liście i będzie mógł się zalogować.`,
+      ok: 'Przywróć'
+    })) return;
     try{
       await setDoc(doc(db,'users',uid),{active:true},{merge:true});
       showToast('♻️ Pracownik przywrócony');
@@ -2490,12 +2698,17 @@ window.toggleActive = async function(uid, isActive){
     return;
   }
 
-  if(!confirm(`Usunąć pracownika "${name}"? Nie będzie mógł się zalogować i znika z listy. Można go potem przywrócić.`)) return;
-  const wipeHistory = confirm(
-    `Dodatkowo trwale usunąć CAŁĄ historię wpisów czasu pracy dla "${name}"?\n\n` +
-    `OK — usuń historię (NIEODWRACALNE, nie da się przywrócić nawet po odzyskaniu konta)\n` +
-    `Anuluj — zachowaj historię (zobaczysz ją, jeśli kiedyś przywrócisz pracownika)`
-  );
+  if(!await askConfirm({
+    title: 'Usunąć pracownika?',
+    text: `„${name}” nie będzie mógł się zalogować i zniknie z listy. Można go potem przywrócić.`,
+    ok: 'Usuń', danger: true
+  })) return;
+  const wipeHistory = await askConfirm({
+    title: 'Co z historią wpisów?',
+    text: `Zachowana historia „${name}” wróci po przywróceniu konta.\n` +
+          `Usunięcie historii jest NIEODWRACALNE.`,
+    ok: 'Usuń historię', cancel: 'Zachowaj', danger: true
+  });
   try{
     await setDoc(doc(db,'users',uid),{active:false},{merge:true});
     if(wipeHistory){
@@ -2517,7 +2730,7 @@ window.changeRole = async function(uid){
   if(!sel)return;
   const role=sel.value;
   const labels={employee:'Pracownik',admin:'Administrator'};
-  if(!confirm('Zmienić rolę na: '+labels[role]+'?'))return;
+  if(!await askConfirm({ title: 'Zmienić rolę?', text: 'Nowa rola: '+labels[role]+'.', ok: 'Zmień' })) return;
   try{
     await setDoc(doc(db,'users',uid),{role},{merge:true});
     showToast('✅ Rola zmieniona na '+labels[role]);
@@ -2535,7 +2748,7 @@ async function loadAdminOverview() {
   c.innerHTML = entries.sort((a,b)=>b.date.localeCompare(a.date)).map(e=>{
     const u = umap[e.uid]||{};
     const cls = e.type||'work';
-    const hrs = DAY_TYPES.includes(cls) ? '1d' : `${e.hours}h`;
+    const hrs = DAY_TYPES.includes(cls) ? '1d' : `${fmtNum(e.hours)}h`;
     return `
     <div class="entry-item" style="cursor:default;">
       <div class="entry-icon ${cls}">${TYPE_ICONS[cls]||'📋'}</div>
@@ -2552,7 +2765,7 @@ async function loadAdminOverview() {
 
 async function loadManageUsers() {
   const snap = await getDocs(collection(db,'users'));
-  const users = snap.docs.map(d=>({uid:d.id,...d.data()}));
+  const users = sortUsersByName(snap.docs.map(d=>({uid:d.id,...d.data()})));
   const c = document.getElementById('manage-users-list');
   if(!users.length){ c.innerHTML='<p>Brak użytkowników.</p>'; return; }
   c.innerHTML = users.map(u=>`
@@ -2620,7 +2833,9 @@ function fileSlug(name){
     .replace(/[^A-Za-z0-9]+/g,'_').replace(/^_+|_+$/g,'') || 'pracownik';
 }
 
-function buildEmployeeReportData(user, monthDate, entries){
+// entries — wpisy z raportowanego miesiąca; yearEntries — wszystkie wpisy pracownika z tego roku
+// (do linijki o puli urlopowej: ile wykorzystano i ile zostało).
+function buildEmployeeReportData(user, monthDate, entries, yearEntries){
   const sorted = [...entries].sort((a,b)=>a.date.localeCompare(b.date));
   let sumH=0, dWork=0, dVac=0, dSick=0;
   const rows = sorted.map(e=>{
@@ -2630,20 +2845,22 @@ function buildEmployeeReportData(user, monthDate, entries){
     if(isWork){ sumH+=h; dWork++; }
     else if(e.type==='vacation') dVac++;
     else if(e.type==='sick')     dSick++;
-    return [fmtShort(e.date), dow, (TYPE_LABELS[e.type]||e.type), isWork?round1(h):'', (e.place||''), (e.note||'')];
+    return [fmtShort(e.date), dow, (TYPE_LABELS[e.type]||e.type), isWork?fmtNum(h):'', (e.place||''), (e.note||'')];
   });
-  return { rows, summary:{dWork,dVac,dSick,sumH:round1(sumH)}, user, monthLabel: monthLabel(monthDate) };
+  const lu = computeLeaveUsage(yearEntries || entries);
+  const leave = { ...leaveInfo(user.poolVacation ?? 26, lu.usedVacation), sick: lu.usedSick, year: monthDate.getFullYear() };
+  return { rows, summary:{dWork,dVac,dSick,sumH:round1(sumH)}, leave, user, monthLabel: monthLabel(monthDate) };
 }
 
 function buildEmployeeCsvFromData(d){
   const S=';'; const num=n=>String(n).replace('.',',');
   const L=[];
-  L.push('IT-S Systems - ewidencja czasu pracy');
+  L.push('IT-S Systems — ewidencja czasu pracy');
   L.push('Pracownik'+S+csvCell(d.user.name||''));
   L.push('E-mail'+S+csvCell(d.user.email||''));
-  L.push('Miesiac'+S+csvCell(d.monthLabel));
+  L.push('Miesiąc'+S+csvCell(d.monthLabel));
   L.push('');
-  L.push(['Data','Dzien tygodnia','Typ','Godziny','Miejsce pracy','Notatka'].join(S));
+  L.push(['Data','Dzień tygodnia','Typ','Godziny','Miejsce pracy','Notatka'].join(S));
   d.rows.forEach(r=>L.push(r.map(csvCell).join(S)));
   L.push('');
   L.push('PODSUMOWANIE');
@@ -2651,6 +2868,12 @@ function buildEmployeeCsvFromData(d){
   L.push('Dni urlopu wypoczynkowego'+S+d.summary.dVac);
   L.push('Dni L4'+S+d.summary.dSick);
   L.push('Razem godzin'+S+num(d.summary.sumH));
+  L.push('');
+  L.push('URLOP WYPOCZYNKOWY '+d.leave.year);
+  L.push('Pula (dni)'+S+d.leave.pool);
+  L.push('Wykorzystano (dni)'+S+d.leave.used);
+  L.push('Zostało (dni)'+S+d.leave.left);
+  L.push('L4 w roku (dni)'+S+d.leave.sick);
   return L.join('\r\n');
 }
 
@@ -2667,16 +2890,53 @@ function downloadFile(filename, text){
   }, 2000);
 }
 
+// Wbudowane fonty jsPDF (Helvetica) nie mają polskich znaków — „Miesiąc” wychodził jako
+// „Miesic”, „środa” jako „[roda”. Dlatego do PDF ładujemy Inter (ten sam font co w apce)
+// z jsDelivr i rejestrujemy go w jsPDF. Pobrane pliki trzymamy w pamięci na kolejne eksporty.
+const PDF_FONT_BASE = 'https://cdn.jsdelivr.net/npm/@expo-google-fonts/inter@0.4.2/';
+const PDF_FONT_FILES = [
+  ['Inter-Regular.ttf', '400Regular/Inter_400Regular.ttf', 'normal'],
+  ['Inter-Bold.ttf',    '700Bold/Inter_700Bold.ttf',       'bold']
+];
+let pdfFontCache = null;
+
+function arrayBufferToBase64(buf){
+  const bytes = new Uint8Array(buf);
+  let bin = '';
+  for(let i=0; i<bytes.length; i+=0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i+0x8000));
+  return btoa(bin);
+}
+
+async function registerPdfFonts(doc){
+  try{
+    if(!pdfFontCache){
+      pdfFontCache = await Promise.all(PDF_FONT_FILES.map(async ([name, path, style])=>{
+        const res = await fetch(PDF_FONT_BASE+path);
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        return [name, arrayBufferToBase64(await res.arrayBuffer()), style];
+      }));
+    }
+    pdfFontCache.forEach(([name, b64, style])=>{ doc.addFileToVFS(name, b64); doc.addFont(name, 'Inter', style); });
+    return 'Inter';
+  }catch(err){
+    // Bez fontu PDF i tak się wygeneruje (tylko bez polskich znaków) — lepsze niż brak eksportu.
+    console.warn('Nie udało się pobrać fontu do PDF:', err);
+    pdfFontCache = null;
+    return 'helvetica';
+  }
+}
+
 async function buildPdfForEmployees(employeesData, filenameBase){
   const { jsPDF } = await import('https://cdn.jsdelivr.net/npm/jspdf@2.5.2/+esm');
   const autoTableMod = await import('https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/+esm');
   const autoTable = autoTableMod.default;
   const doc = new jsPDF({unit:'pt',format:'a4'});
+  const font = await registerPdfFonts(doc);
   employeesData.forEach((d, idx)=>{
     if(idx>0) doc.addPage();
-    doc.setFontSize(14); doc.setFont(undefined,'bold');
+    doc.setFontSize(14); doc.setFont(font,'bold');
     doc.text('IT-S Systems — ewidencja czasu pracy', 40, 40);
-    doc.setFontSize(11); doc.setFont(undefined,'normal');
+    doc.setFontSize(11); doc.setFont(font,'normal');
     doc.text(`Pracownik: ${d.user.name||''}`, 40, 60);
     doc.text(`E-mail: ${d.user.email||''}`, 40, 76);
     doc.text(`Miesiąc: ${d.monthLabel}`, 40, 92);
@@ -2684,16 +2944,21 @@ async function buildPdfForEmployees(employeesData, filenameBase){
       startY: 106,
       head: [['Data','Dzień','Typ','Godziny','Miejsce','Notatka']],
       body: d.rows,
-      styles:{fontSize:8, cellPadding:4},
-      headStyles:{fillColor:[37,99,235]},
+      styles:{font, fontSize:8, cellPadding:4},
+      headStyles:{fillColor:[37,99,235], fontStyle:'bold'},
       margin:{left:40,right:40}
     });
     const endY = doc.lastAutoTable.finalY + 20;
-    doc.setFontSize(10);
+    doc.setFontSize(10); doc.setFont(font,'bold');
     const num = n=>String(n).replace('.',',');
     doc.text(
       `Dni pracy: ${d.summary.dWork}   Urlop wyp.: ${d.summary.dVac}   L4: ${d.summary.dSick}   Razem godzin: ${num(d.summary.sumH)}`,
       40, endY
+    );
+    doc.setFont(font,'normal');
+    doc.text(
+      `Urlop wypoczynkowy w ${d.leave.year}: wykorzystano ${d.leave.used} z ${d.leave.pool} dni, zostało ${d.leave.left}.   L4 w ${d.leave.year}: ${d.leave.sick} dni.`,
+      40, endY + 16
     );
   });
   doc.save(filenameBase+'.pdf');
@@ -2704,16 +2969,16 @@ window.exportEmployee = async function(uid, format){
   const old = btn?btn.textContent:'';
   if(btn){ btn.disabled=true; btn.textContent='...'; }
   try {
-    const start = new Date(adminMonth.getFullYear(), adminMonth.getMonth(), 1);
-    const end   = new Date(adminMonth.getFullYear(), adminMonth.getMonth()+1, 0);
-    const [uSnap, entries] = await Promise.all([
+    const y = adminMonth.getFullYear();
+    const ym  = y+'-'+String(adminMonth.getMonth()+1).padStart(2,'0');
+    const [uSnap, yearEntries] = await Promise.all([
       getDoc(doc(db,'users',uid)),
-      fetchEntries(uid, start, end)
+      fetchEntries(uid, new Date(y,0,1), new Date(y,11,31))
     ]);
     const user = uSnap.exists() ? uSnap.data() : {name:'Pracownik', email:''};
+    const entries = yearEntries.filter(e=>e.date.startsWith(ym));
     if(!entries.length){ showToast('Brak wpisów w tym miesiącu'); return; }
-    const data = buildEmployeeReportData(user, adminMonth, entries);
-    const ym  = adminMonth.getFullYear()+'-'+String(adminMonth.getMonth()+1).padStart(2,'0');
+    const data = buildEmployeeReportData(user, adminMonth, entries, yearEntries);
     if(format==='csv'){
       downloadFile('ITS_'+fileSlug(user.name)+'_'+ym+'.csv', buildEmployeeCsvFromData(data));
     } else {
@@ -2733,15 +2998,19 @@ window.exportAllEmployees = async function(format){
   const old = btn?btn.textContent:'';
   if(btn){ btn.disabled=true; btn.textContent='Przygotowuję...'; }
   try {
-    const start = new Date(adminMonth.getFullYear(), adminMonth.getMonth(), 1);
-    const end   = new Date(adminMonth.getFullYear(), adminMonth.getMonth()+1, 0);
-    const [usersSnap, entries] = await Promise.all([getDocs(collection(db,'users')), fetchAllEntries(start,end)]);
-    const users = usersSnap.docs.map(d=>({uid:d.id,...d.data()}));
+    const y = adminMonth.getFullYear();
+    const ym = y+'-'+String(adminMonth.getMonth()+1).padStart(2,'0');
+    const [usersSnap, yearEntries] = await Promise.all([
+      getDocs(collection(db,'users')), fetchAllEntries(new Date(y,0,1), new Date(y,11,31))
+    ]);
+    const users = sortUsersByName(usersSnap.docs.map(d=>({uid:d.id,...d.data()})));
     const datas = users
-      .map(u=>buildEmployeeReportData(u, adminMonth, entries.filter(e=>e.uid===u.uid)))
+      .map(u=>{
+        const ye = yearEntries.filter(e=>e.uid===u.uid);
+        return buildEmployeeReportData(u, adminMonth, ye.filter(e=>e.date.startsWith(ym)), ye);
+      })
       .filter(d=>d.rows.length);
     if(!datas.length){ showToast('Brak wpisów w tym miesiącu'); return; }
-    const ym = adminMonth.getFullYear()+'-'+String(adminMonth.getMonth()+1).padStart(2,'0');
     if(format==='csv'){
       downloadFile('ITS_Wszyscy_'+ym+'.csv', datas.map(buildEmployeeCsvFromData).join('\r\n\r\n'));
     } else {
@@ -2776,7 +3045,7 @@ window.openEntryModal = function(id) {
     ${(e.type==='work'||e.type==='other')?`
     <div class="modal-row">
       <div class="modal-row-label">Godziny</div>
-      <div class="modal-row-value" style="font-size:1.5rem;font-weight:700;color:var(--accent);">${e.hours}h</div>
+      <div class="modal-row-value" style="font-size:1.5rem;font-weight:700;color:var(--accent);">${fmtNum(e.hours)}h</div>
     </div>`:''}
     ${e.place?`
     <div class="modal-row">
@@ -2861,7 +3130,7 @@ window.saveAdminEntryEdit = async function(){
 
 window.deleteCurrentEntry = async function() {
   if(!currentEntryId) return;
-  if(!confirm('Usunąć ten wpis?')) return;
+  if(!await askConfirm({ title: 'Usunąć ten wpis?', text: 'Tej operacji nie można cofnąć.', ok: 'Usuń', danger: true })) return;
   try {
     await deleteDoc(doc(db,'entries',currentEntryId));
     showToast('🗑️ Wpis usunięty');
@@ -2905,7 +3174,7 @@ function initAddForm() {
   const di = document.getElementById('entry-date');
   if(di) di.value = e ? e.date : todayStr();
   const hd = document.getElementById('hours-display');
-  if(hd) hd.textContent = hoursValue;
+  if(hd) hd.textContent = fmtNum(hoursValue);
   updateTypeSections(selectedType);
 
   const pl = document.getElementById('entry-place');
@@ -2939,7 +3208,7 @@ window.selectType = function(type) {
 window.changeHours = function(delta) {
   hoursValue = Math.max(0.5, Math.min(24, hoursValue + delta));
   const hd = document.getElementById('hours-display');
-  if(hd) hd.textContent = hoursValue;
+  if(hd) hd.textContent = fmtNum(hoursValue);
 };
 
 window.saveEntry = async function() {
